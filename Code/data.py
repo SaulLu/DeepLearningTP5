@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader, Dataset, random_split
 from rossler_map import RosslerMap
 
 
-class RosslerAttractorDataset(dataset):
+class RosslerAttractorDataset(Dataset):
     def __init__(
         self, n_iter: int = 2000000, delta_t: float = 1e-2, init_pos=np.array([-5.75, -1.6, 0.02])
     ):
