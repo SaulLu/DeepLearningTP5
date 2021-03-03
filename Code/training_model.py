@@ -39,9 +39,9 @@ def main(args):
 
     trainer.tune(model)
 
-    trainer.fit(model, datamodule)
+    trainer.fit(model, datamodule.train_dataloader, datamodule.val_dataloader)
 
-    trainer.test(datamodule)
+    trainer.test(datamodule.test_dataloader)
 
 
 if __name__ == "__main__":
