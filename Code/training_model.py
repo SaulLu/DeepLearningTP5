@@ -12,7 +12,7 @@ def main(args):
 
     checkpoint_callback = ModelCheckpoint(
         filename="{epoch}-{val_loss:.2f}-{other_metric:.2f}",
-        save_best_only=True,
+        save_top_k=1,
         verbose=True,
         monitor="val_loss",
         mode="min",
