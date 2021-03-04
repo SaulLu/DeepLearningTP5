@@ -86,6 +86,8 @@ def main(args):
 def plot_pred_true_trajectories(
     wandb_logger, rossler_map_true, rossler_model, initial_condition, prefix=None
 ):
+    if isinstance(initial_condition, tuple) or isinstance(initial_condition, list):
+        initial_condition = np.array(initial_condition)
     traj = rossler_model.full_traj(initial_condition=initial_condition, y_only=False)
     ax, fig = plot3D_traj(traj)
     wandb_logger.experiment.log({f"{prefix if prefix else ''}predicted_traj": wandb.Image(fig)})
