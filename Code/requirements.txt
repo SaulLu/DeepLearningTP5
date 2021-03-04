@@ -1,4 +1,6 @@
-matplotlib
-numpy
-scipy
-script
+scipy==1.5.3
+matplotlib==3.3.4
+pytorch-lightning==1.2.1
+torch==1.7.1
+numpy==1.20.1
+wandb
