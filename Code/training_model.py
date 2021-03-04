@@ -1,10 +1,17 @@
 from argparse import ArgumentParser
+from statistics import plot3D_traj
+import wandb
+import numpy as np
+import matplotlib.pyplot as plt
 import pytorch_lightning as pl
 from pytorch_lightning import Trainer
-from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.loggers import WandbLogger
+
+from rossler_map import RosslerMap
 from data import RosslerAttractorDataModule
 from model import Model
+from time_series import Rossler_model
 
 
 def main(args):
@@ -26,6 +33,7 @@ def main(args):
         init_pos_test=args.init_pos_train,
         init_pos_valid=args.init_pos_valid,
         batch_size=args.batch_size,
+        delta_t=args.delta_t,
     )
 
     model = Model(lr=args.lr)
@@ -43,6 +51,23 @@ def main(args):
     trainer.fit(model, datamodule)
 
     trainer.test(model=model, datamodule=datamodule)
+
+    checkpoint_path = checkpoint_callback.best_model_path
+
+    rossler_model = Rossler_model(
+        delta_t=args.delta_t, model_cls=Model, checkpoint_path=checkpoint_path
+    )
+
+    traj = rossler_model.full_traj(initial_condition=np.array(args.init_pos_test), y_only=False)
+    ax, fig = plot3D_traj(traj)
+    wandb_logger.experiment.log({"predicted_traj": wandb.Image(fig)})
+
+    rossler_map_true = RosslerMap(delta_t=args.delta_t)
+    traj_true, _ = rossler_map_true.full_traj(
+        init_pos=np.array(args.init_pos_test), nb_steps=rossler_model.nb_steps
+    )
+    ax, fig = plot3D_traj(traj_true)
+    wandb_logger.experiment.log({"true_traj": wandb.Image(fig)})
 
 
 if __name__ == "__main__":
