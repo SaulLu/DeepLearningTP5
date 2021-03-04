@@ -8,7 +8,7 @@ from scipy.interpolate import interp1d
 from model import Model
 
 INITIAL_CONDITION = [-5.75, -1.6, 0.02]
-TRAJECTORY_DUR = 1000
+TRAJECTORY_DUR = 10
 
 
 class Rossler_model:
@@ -26,7 +26,7 @@ class Rossler_model:
         # just the y cordinate is necessary.
 
         #
-        self.rosler_nn.full_traj(TRAJECTORY_DUR, initial_condition)
+        traj, t = self.rosler_nn.full_traj(TRAJECTORY_DUR, initial_condition)
         # print(f"traj: {traj.shape}")
         if y_only:
             traj = traj[:, 1]

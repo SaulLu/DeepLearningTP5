@@ -10,7 +10,7 @@ from pytorch_lightning.loggers import WandbLogger
 
 import wandb
 from data import RosslerAttractorDataModule
-from model import Model
+from model import DiscretModel as Model
 from rossler_map import RosslerMap
 from time_series import Rossler_model
 
