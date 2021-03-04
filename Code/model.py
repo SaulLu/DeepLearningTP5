@@ -205,7 +205,9 @@ class ContinuousModel(pl.LightningModule):
         pred_traj = outputs[-1]["pred_traj"]
         true_traj = outputs[-1]["true_traj"]
         ax, fig = plot3D_traj(pred_traj, true_traj)
-        self.logger.experiment.log({f"val_traj": wandb.Image(fig), "epoch": self.current_epoch})
+        self.logger.experiment.log(
+            {f"val_traj": wandb.Image(fig), "epoch": self.current_epoch}, commit=False
+        )
 
     def test_step(self, batch, batch_idx):
         positions, time_list = batch
