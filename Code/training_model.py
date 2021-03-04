@@ -42,7 +42,7 @@ def main(args):
 
     trainer.fit(model, datamodule)
 
-    trainer.test(model, datamodule)
+    trainer.test(model=model, datamodule=datamodule)
 
 
 if __name__ == "__main__":
