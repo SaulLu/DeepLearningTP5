@@ -187,19 +187,25 @@ class ContinuousModel(pl.LightningModule):
 
         output = output.permute(1, 0, -1)
 
-        ax, fig = plot3D_traj(output[0].cpu(), positions[0].cpu())
-        self.logger.experiment.log({f"val_traj": wandb.Image(fig), "step": self.global_step})
+        ouputs = {"pred_traj": output[0].cpu(), "true_traj": positions[0].cpu()}
 
         output = torch.flatten(output, start_dim=1)
         positions = torch.flatten(positions, start_dim=1)
-        print(f"output: {output.shape}")
-        print(f"positions: {positions.shape}")
+        # print(f"output: {output.shape}")
+        # print(f"positions: {positions.shape}")
 
         mse = self.criterion(output, positions)
         # loss = mse + self.lambda_jr * self.reg(data, output)
 
         # self.log("val_loss", loss, on_epoch=True)
         self.log("val_mse", mse, on_epoch=True)
+        return ouputs
+
+    def validation_epoch_end(self, outputs):
+        pred_traj = outputs[-1]["pred_traj"]
+        true_traj = outputs[-1]["true_traj"]
+        ax, fig = plot3D_traj(pred_traj, true_traj)
+        self.logger.experiment.log({f"val_traj": wandb.Image(fig), "epoch": self.current_epoch})
 
     def test_step(self, batch, batch_idx):
         positions, time_list = batch
