@@ -10,7 +10,7 @@ from pytorch_lightning.loggers import WandbLogger
 
 import wandb
 from data import RosslerAttractorDataModule
-from model import DiscretModel as Model
+from model import ContinuousModel as Model
 from rossler_map import RosslerMap
 from time_series import Rossler_model
 
@@ -30,9 +30,9 @@ def main(args):
         n_iter_train=args.n_iter_train,
         n_iter_valid=args.n_iter_valid,
         n_iter_test=args.n_iter_test,
-        init_pos_train=args.init_pos_train,
-        init_pos_test=args.init_pos_train,
-        init_pos_valid=args.init_pos_valid,
+        # init_pos_train=args.init_pos_train,
+        # init_pos_test=args.init_pos_train,
+        # init_pos_valid=args.init_pos_valid,
         batch_size=args.batch_size,
         delta_t=args.delta_t,
     )
@@ -55,11 +55,9 @@ def main(args):
 
     checkpoint_path = checkpoint_callback.best_model_path
 
-    rossler_model = Rossler_model(
-        delta_t=args.delta_t, model_cls=Model, checkpoint_path=checkpoint_path
-    )
+    rossler_model = Rossler_model(delta_t=1e-2, model_cls=Model, checkpoint_path=checkpoint_path)
 
-    rossler_map_true = RosslerMap(delta_t=args.delta_t)
+    rossler_map_true = RosslerMap(delta_t=1e-2)
 
     plot_pred_true_trajectories(
         wandb_logger=wandb_logger,
@@ -89,15 +87,13 @@ def plot_pred_true_trajectories(
 ):
     if isinstance(initial_condition, tuple) or isinstance(initial_condition, list):
         initial_condition = np.array(initial_condition)
-    traj = rossler_model.full_traj(initial_condition=initial_condition, y_only=False)
-    ax, fig = plot3D_traj(traj)
-    wandb_logger.experiment.log({f"{prefix if prefix else ''}predicted_traj": wandb.Image(fig)})
 
+    traj_pred = rossler_model.full_traj(initial_condition=initial_condition, y_only=False)
     traj_true, _ = rossler_map_true.full_traj(
         init_pos=initial_condition, nb_steps=rossler_model.nb_steps
     )
-    ax, fig = plot3D_traj(traj_true)
-    wandb_logger.experiment.log({f"{prefix if prefix else ''}true_traj": wandb.Image(fig)})
+    ax, fig = plot3D_traj(traj_pred, traj_true)
+    wandb_logger.experiment.log({f"{prefix if prefix else ''}traj": wandb.Image(fig)})
 
 
 if __name__ == "__main__":
@@ -109,7 +105,7 @@ if __name__ == "__main__":
     parser.add_argument("--init_pos_valid", nargs="+", type=float, default=[0.01, 2.5, 3.07])
     parser.add_argument("--init_pos_test", nargs="+", type=float, default=[-5.70, -1.5, -0.02])
 
-    parser.add_argument("--batch_size", type=int, default=256)
+    parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--delta_t", type=float, default=1e-2)
 
     parser.add_argument("--lr", type=float, default=1e-6)
