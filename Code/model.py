@@ -184,6 +184,10 @@ class ContinuousModel(pl.LightningModule):
         # print(f"output: {output.shape}")
 
         output = output.permute(1, 0, -1)
+
+        ax, fig = plot3D_traj(output[0], positions[0])
+        wandb_logger.experiment.log({f"val_traj": wandb.Image(fig), "step": self.global_step})
+
         output = torch.flatten(output, start_dim=1)
         positions = torch.flatten(positions, start_dim=1)
         print(f"output: {output.shape}")
