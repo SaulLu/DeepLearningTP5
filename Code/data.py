@@ -29,7 +29,7 @@ class ContinuousRosslerAttractorDataset(Dataset):
         n_iter: int = 200,
         delta_t: float = 1e-2,
         init_positions=[np.array([-5.75, -1.6, 0.02]), np.array([-3.75, 0.02, 2.9])],
-        n_samples=400,
+        n_samples=4,
     ):
         super().__init__()
         self.delta_t = delta_t
@@ -118,14 +118,14 @@ class RosslerAttractorDataModule(pl.LightningDataModule):
                 self.n_iter_valid,
                 self.delta_t,
                 # self.init_pos_valid
-                n_samples=100,
+                n_samples=2,
             )
         if stage == "test" or stage is None:
             self.dataset_test = RosslerAttractorDataset(
                 self.n_iter_test,
                 self.delta_t,
                 # self.init_pos_test
-                n_samples=100,
+                n_samples=2,
             )
 
     def train_dataloader(self):

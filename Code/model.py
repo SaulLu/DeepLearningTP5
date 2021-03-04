@@ -97,6 +97,7 @@ class ContinuousModel(pl.LightningModule):
         self,
         time_list: list,
         t1: float,
+        criterion=nn.MSELoss(),
         hidden_size: int = 10,
         in_size: int = 3,
         out_size: int = 3,
@@ -115,7 +116,7 @@ class ContinuousModel(pl.LightningModule):
         self.lambda_jr = lambda_jr
         self.delta_t = delta_t
 
-        self.criterion = nn.MSELoss()
+        self.criterion = criterion
         self.reg = JacobianReg()
 
         self.layers = nn.Sequential(
