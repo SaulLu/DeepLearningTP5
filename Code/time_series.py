@@ -1,7 +1,7 @@
 import argparse
 
 import numpy as np
-from script.interpolate import interp1d
+from scipy.interpolate import interp1d
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--init", nargs="+", type=float, default=[-5.75, -1.6, 0.02])
