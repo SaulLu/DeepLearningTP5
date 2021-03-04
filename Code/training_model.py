@@ -115,8 +115,8 @@ if __name__ == "__main__":
     parser.add_argument("--n_iter_valid", type=int, default=1000)
     parser.add_argument("--n_iter_test", type=int, default=1000)
     parser.add_argument("--init_pos_train", nargs="+", type=float, default=[-5.75, -1.6, 0.02])
-    parser.add_argument("--init_pos_valid", nargs="+", type=float, default=[0.01, 2.5, 3.07])
-    parser.add_argument("--init_pos_test", nargs="+", type=float, default=[-5.70, -1.5, -0.02])
+    parser.add_argument("--init_pos_valid", nargs="+", type=float, default=[-5.70, -1.5, -0.02])
+    parser.add_argument("--init_pos_test", nargs="+", type=float, default=[0.01, 2.5, 3.07])
 
     parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--delta_t", type=float, default=1e-2)
