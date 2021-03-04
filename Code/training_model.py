@@ -105,9 +105,9 @@ def plot_pred_true_trajectories(
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("--n_iter_train", type=int, default=2000)
-    parser.add_argument("--n_iter_valid", type=int, default=2000)
-    parser.add_argument("--n_iter_test", type=int, default=2000)
+    parser.add_argument("--n_iter_train", type=int, default=1024)
+    parser.add_argument("--n_iter_valid", type=int, default=1024)
+    parser.add_argument("--n_iter_test", type=int, default=1024)
     parser.add_argument("--init_pos_train", nargs="+", type=float, default=[-5.75, -1.6, 0.02])
     parser.add_argument("--init_pos_valid", nargs="+", type=float, default=[0.01, 2.5, 3.07])
     parser.add_argument("--init_pos_test", nargs="+", type=float, default=[-5.70, -1.5, -0.02])
