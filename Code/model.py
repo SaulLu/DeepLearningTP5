@@ -2,6 +2,7 @@ import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 from jacobian import JacobianReg
+import numpy as np
 
 
 class Model(pl.LightningModule):
@@ -71,3 +72,18 @@ class Model(pl.LightningModule):
 
         # self.log("test_loss", loss)
         self.log("test_mse", mse)
+
+    def full_traj(self, trajectory_duration, initial_condition):
+        nb_steps = int(trajectory_duration // self.delta_t)
+
+        traj = [initial_condition[np.newaxis, :]]
+        t = [self.delta_t]
+        with torch.no_grad():
+            for _ in range(nb_steps - 1):
+                new_coord = self(torch.tensor(traj[-1], dtype=torch.float)).numpy()
+                traj.append(new_coord)
+                t.append(t[-1] + self.delta_t)
+        traj = np.concatenate(traj, axis=0)
+        t = np.array(t)
+
+        return traj, t

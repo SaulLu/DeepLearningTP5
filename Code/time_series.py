@@ -25,25 +25,13 @@ class Rossler_model:
         # run your model to generate the time series with nb_steps
         # just the y cordinate is necessary.
 
-        traj = [initial_condition[np.newaxis, :]]
-        t = [self.delta_t]
-        # print(f"self.nb_steps: {self.nb_steps}")
-        with torch.no_grad():
-            for _ in range(self.nb_steps - 1):
-                new_coord = self.rosler_nn(torch.tensor(traj[-1], dtype=torch.float)).numpy()
-                # print(f"new_coord: {new_coord.shape}")
-                traj.append(new_coord)
-                t.append(t[-1] + self.delta_t)
-
-        # print(f"traj[-1]: {traj[-1].shape}")
-
-        traj = np.concatenate(traj, axis=0)
-        t = np.array(t)
+        #
+        self.rosler_nn.full_traj(TRAJECTORY_DUR, initial_condition)
         # print(f"traj: {traj.shape}")
         if y_only:
             traj = traj[:, 1]
 
-        ## TODODOODODOD
+        ## TODO !
         # print(f"traj: {traj.shape}")
         # print(f"t: {t.shape}")
 
