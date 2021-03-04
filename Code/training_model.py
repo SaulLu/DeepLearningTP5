@@ -36,7 +36,7 @@ def main(args):
         delta_t=args.delta_t,
     )
 
-    model = Model(lr=args.lr)
+    model = Model(lr=args.lr, delta_t=args.delta_t)
 
     trainer = Trainer(
         gpus=args.gpus,

@@ -11,6 +11,7 @@ class Model(pl.LightningModule):
         in_size: int = 3,
         out_size: int = 3,
         lr: float = 1e-3,
+        delta_t: float = 1e-3,
         lambda_jr=0.01,  # lambda jacobian regularisation
     ):
         super().__init__()
@@ -20,6 +21,7 @@ class Model(pl.LightningModule):
         self.out_size = out_size
         self.lr = lr
         self.lambda_jr = lambda_jr
+        self.delta_t = delta_t
 
         self.criterion = nn.MSELoss()
         self.reg = JacobianReg()
@@ -34,7 +36,7 @@ class Model(pl.LightningModule):
         )
 
     def forward(self, x):
-        return x + self.layers(x)
+        return x + self.layers(x) * self.delta_t
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.lr)
