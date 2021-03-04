@@ -38,12 +38,12 @@ class Model(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
-        y_hat = self.model(x)
+        y_hat = self(x)
         loss = self.criterion(y_hat, y)
         self.log("val_loss", loss)
 
     def test_step(self, batch, batch_idx):
         x, y = batch
-        y_hat = self.model(x)
+        y_hat = self(x)
         loss = self.criterion(y_hat, y)
         self.log("test_loss", loss)
