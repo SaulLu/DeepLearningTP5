@@ -10,8 +10,8 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
 import wandb
-from data import DiscreteRosslerAttractorDataModule as RosslerAttractorDataModule
-from model import DiscreteModel as Model
+from data import RosslerAttractorDataModule
+from model import ContinuousModel as Model
 from rossler_map import RosslerMap
 from time_series import Rossler_model
 from pytorch_softdtw_cuda.soft_dtw_cuda import SoftDTW
@@ -32,16 +32,16 @@ def main(args):
         n_iter_train=args.n_iter_train,
         n_iter_valid=args.n_iter_valid,
         n_iter_test=args.n_iter_test,
-        init_pos_train=args.init_pos_train,
-        init_pos_test=args.init_pos_train,
-        init_pos_valid=args.init_pos_valid,
+        # init_pos_train=args.init_pos_train,
+        # init_pos_test=args.init_pos_train,
+        # init_pos_valid=args.init_pos_valid,
         batch_size=args.batch_size,
         delta_t=args.delta_t,
     )
 
-    # tf = args.n_iter_train * args.delta_t
-    # time_span = np.linspace(0, tf, args.n_iter_train)
-    # time_list = time_span.tolist()
+    tf = args.n_iter_train * args.delta_t
+    time_span = np.linspace(0, tf, args.n_iter_train)
+    time_list = time_span.tolist()
 
     # sdtw = SoftDTW(use_cuda=False if args.gpus is None else True, gamma=0.1)
 
@@ -49,8 +49,8 @@ def main(args):
 
     model = Model(
         criterion=criterion,
-        # time_list=time_list,
-        # t1=tf,
+        time_list=time_list,
+        t1=tf,
         lr=args.lr,
         delta_t=args.delta_t,
     )

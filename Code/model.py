@@ -13,7 +13,8 @@ from statistics import plot3D_traj
 class DiscretModel(pl.LightningModule):
     def __init__(
         self,
-        hidden_size: int = 10,
+        criterion=nn.MSELoss(),
+        hidden_size: int = 50,
         in_size: int = 3,
         out_size: int = 3,
         lr: float = 1e-3,
@@ -22,6 +23,7 @@ class DiscretModel(pl.LightningModule):
     ):
         super().__init__()
         self.save_hyperparameters()
+        self.criterion = criterion
         self.in_size = in_size
         self.hidden_size = hidden_size
         self.out_size = out_size
@@ -29,7 +31,6 @@ class DiscretModel(pl.LightningModule):
         self.lambda_jr = lambda_jr
         self.delta_t = delta_t
 
-        self.criterion = nn.MSELoss()
         self.reg = JacobianReg()
 
         self.layers = nn.Sequential(
@@ -48,26 +49,39 @@ class DiscretModel(pl.LightningModule):
         return torch.optim.Adam(self.parameters(), lr=self.lr)
 
     def training_step(self, batch, batch_idx):
-        data, target = batch
-        data.requires_grad = True  # this is essential!
+        w_t1, w_t2 = batch
+        w_t1.requires_grad = True  # this is essential!
 
-        output = self(data)
-        mse = self.criterion(output, target)
-        loss = mse + self.lambda_jr * self.reg(data, output)
+        w_t2_pred = self(w_t1)
+        mse = self.criterion(w_t2_pred, w_t2)
+        loss = mse + self.lambda_jr * self.reg(w_t1, w_t2_pred)
 
         self.log("train_loss", loss, on_step=True, on_epoch=True)
         self.log("train_mse", mse, on_step=True, on_epoch=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        data, target = batch
+        w_t1, w_t2 = batch
+        w_t1.requires_grad = True  # this is essential!
 
-        output = self(data)
-        mse = self.criterion(output, target)
+        w_t2_pred = self(w_t1)
+        mse = self.criterion(w_t2_pred, w_t2)
         # loss = mse + self.lambda_jr * self.reg(data, output)
 
         # self.log("val_loss", loss, on_epoch=True)
         self.log("val_mse", mse, on_epoch=True)
+        return {"w_t2": w_t2, "w_t2_pred": w_t2_pred}
+
+    def validation_epoch_end(self, outputs):
+        pred_traj = []
+        true_traj = []
+        for output in outputs:
+            pred_traj.append(output["pred_traj"])
+            pred_traj.append(output["true_traj"])
+        ax, fig = plot3D_traj(pred_traj, true_traj)
+        self.logger.experiment.log(
+            {f"val_traj": wandb.Image(fig), "epoch": self.current_epoch}, commit=False
+        )
 
     def test_step(self, batch, batch_idx):
         data, target = batch
