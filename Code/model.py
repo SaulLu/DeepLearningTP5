@@ -45,8 +45,6 @@ class Model(pl.LightningModule):
 
         output = self(data)
         mse = self.criterion(output, target)
-        print(f"data {data.requires_grad}")
-        print(f"output {output.requires_grad}")
         loss = mse + self.lambda_jr * self.reg(data, output)
 
         self.log("train_loss", loss, on_step=True, on_epoch=True)
