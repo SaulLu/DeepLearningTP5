@@ -8,6 +8,7 @@ class Model(pl.LightningModule):
         self, hidden_size: int = 10, in_size: int = 3, out_size: int = 3, lr: float = 1e-3
     ):
         super().__init__()
+        self.save_hyperparameters()
         self.in_size = in_size
         self.hidden_size = hidden_size
         self.out_size = out_size
