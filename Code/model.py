@@ -1,8 +1,8 @@
+import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 from jacobian import JacobianReg
-import numpy as np
 
 
 class Model(pl.LightningModule):

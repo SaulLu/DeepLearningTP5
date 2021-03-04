@@ -1,16 +1,17 @@
 from argparse import ArgumentParser
 from statistics import plot3D_traj
-import wandb
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 import pytorch_lightning as pl
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
-from rossler_map import RosslerMap
+import wandb
 from data import RosslerAttractorDataModule
 from model import Model
+from rossler_map import RosslerMap
 from time_series import Rossler_model
 
 
