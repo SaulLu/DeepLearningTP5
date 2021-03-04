@@ -38,7 +38,7 @@ def main(args):
         callbacks=[checkpoint_callback],
     )
 
-    trainer.tune(model, datamodule)
+    # trainer.tune(model, datamodule) # RUn only on CPU mode
 
     trainer.fit(model, datamodule)
 
