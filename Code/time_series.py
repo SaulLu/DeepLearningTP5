@@ -5,8 +5,6 @@ import torch
 import torch.nn as nn
 from scipy.interpolate import interp1d
 
-from model import Model
-
 INITIAL_CONDITION = [-5.75, -1.6, 0.02]
 TRAJECTORY_DUR = 10
 
