@@ -13,6 +13,7 @@ from data import RosslerAttractorDataModule
 from model import ContinuousModel as Model
 from rossler_map import RosslerMap
 from time_series import Rossler_model
+from pytorch_softdtw_cuda.soft_dtw_cuda import SoftDTW
 
 
 def main(args):
@@ -41,7 +42,9 @@ def main(args):
     time_span = np.linspace(0, tf, args.n_iter_train)
     time_list = time_span.tolist()
 
-    model = Model(time_list=time_list, t1=tf, lr=args.lr, delta_t=args.delta_t)
+    sdtw = SoftDTW(use_cuda=False if args.gpus is None else True, gamma=0.1)
+
+    model = Model(criterion=sdtw, time_list=time_list, t1=tf, lr=args.lr, delta_t=args.delta_t)
 
     trainer = Trainer(
         gpus=args.gpus,
