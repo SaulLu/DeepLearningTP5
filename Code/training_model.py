@@ -42,9 +42,15 @@ def main(args):
     time_span = np.linspace(0, tf, args.n_iter_train)
     time_list = time_span.tolist()
 
-    sdtw = SoftDTW(use_cuda=False if args.gpus is None else True, gamma=0.1)
+    # sdtw = SoftDTW(use_cuda=False if args.gpus is None else True, gamma=0.1)
 
-    model = Model(criterion=sdtw, time_list=time_list, t1=tf, lr=args.lr, delta_t=args.delta_t)
+    model = Model(
+        # criterion=sdtw,
+        time_list=time_list,
+        t1=tf,
+        lr=args.lr,
+        delta_t=args.delta_t,
+    )
 
     trainer = Trainer(
         gpus=args.gpus,
@@ -105,9 +111,9 @@ def plot_pred_true_trajectories(
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("--n_iter_train", type=int, default=1024)
-    parser.add_argument("--n_iter_valid", type=int, default=1024)
-    parser.add_argument("--n_iter_test", type=int, default=1024)
+    parser.add_argument("--n_iter_train", type=int, default=1000)
+    parser.add_argument("--n_iter_valid", type=int, default=1000)
+    parser.add_argument("--n_iter_test", type=int, default=1000)
     parser.add_argument("--init_pos_train", nargs="+", type=float, default=[-5.75, -1.6, 0.02])
     parser.add_argument("--init_pos_valid", nargs="+", type=float, default=[0.01, 2.5, 3.07])
     parser.add_argument("--init_pos_test", nargs="+", type=float, default=[-5.70, -1.5, -0.02])

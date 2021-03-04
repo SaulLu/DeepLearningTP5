@@ -184,9 +184,10 @@ class ContinuousModel(pl.LightningModule):
         # print(f"output: {output.shape}")
 
         output = output.permute(1, 0, -1)
-
-        # print(f"output: {output.shape}")
-        # print(f"positions: {positions.shape}")
+        output = torch.flatten(output, start_dim=1)
+        positions = torch.flatten(positions, start_dim=1)
+        print(f"output: {output.shape}")
+        print(f"positions: {positions.shape}")
 
         mse = self.criterion(output, positions)
         # loss = mse + self.lambda_jr * self.reg(data, output)
