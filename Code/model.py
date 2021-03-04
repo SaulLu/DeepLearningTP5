@@ -180,11 +180,11 @@ class ContinuousModel(pl.LightningModule):
 
         output = self.ode_block(positions[:, 0, :])
         # output = output.unsqueeze(0)
-        print(f"output: {output.shape}")
+        # print(f"output: {output.shape}")
 
         output = output.permute(1, 0, -1)
 
-        print(f"output: {output.shape}")
+        # print(f"output: {output.shape}")
         # print(f"positions: {positions.shape}")
 
         mse = self.criterion(output, positions)
