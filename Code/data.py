@@ -17,7 +17,7 @@ class RosslerAttractorDataset(Dataset):
         self.traj = torch.tensor(self.traj, dtype=torch.float)
 
     def __getitem__(self, index):
-        return tuple(self.traj[index], self.traj[index + 1])
+        return tuple([self.traj[index], self.traj[index + 1]])
 
     def __len__(self):
         return self.traj.size(0) - 1  # Last item don't have true_y
@@ -31,6 +31,7 @@ class RosslerAttractorDataModule(pl.LightningDataModule):
         n_iter_test: int = 2000000,
         delta_t: float = 1e-2,
         init_pos_train=np.array([-5.75, -1.6, 0.02]),
+        init_pos_valid=np.array([0.01, 2.5, 3.07]),
         init_pos_test=np.array([-5.70, -1.5, -0.02]),
         batch_size: int = 32,
     ):
@@ -40,16 +41,17 @@ class RosslerAttractorDataModule(pl.LightningDataModule):
         self.n_iter_test = n_iter_test
         self.delta_t = delta_t
         self.init_pos_train = init_pos_train
+        self.init_pos_valid = init_pos_valid
         self.init_pos_test = init_pos_test
         self.batch_size = batch_size
 
     def setup(self, stage=None):
         if stage == "fit" or stage is None:
-            dataset = RosslerAttractorDataset(
-                self.n_iter_train + self.n_iter_valid, self.delta_t, self.init_pos_train
+            self.dataset_train = RosslerAttractorDataset(
+                self.n_iter_train, self.delta_t, self.init_pos_train
             )
-            self.dataset_train, self.dataset_valid = random_split(
-                dataset, [self.n_iter_train, self.n_iter_valid]
+            self.dataset_valid = RosslerAttractorDataset(
+                self.n_iter_valid, self.delta_t, self.init_pos_valid
             )
         if stage == "test" or stage is None:
             self.dataset_test = RosslerAttractorDataset(
