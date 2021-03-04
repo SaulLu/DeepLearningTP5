@@ -6,6 +6,7 @@ from jacobian import JacobianReg
 from scipy.integrate import solve_ivp
 
 from TorchDiffEqPack import odesolve
+from statistics import plot3D_traj
 
 
 class DiscretModel(pl.LightningModule):
@@ -186,7 +187,7 @@ class ContinuousModel(pl.LightningModule):
         output = output.permute(1, 0, -1)
 
         ax, fig = plot3D_traj(output[0], positions[0])
-        wandb_logger.experiment.log({f"val_traj": wandb.Image(fig), "step": self.global_step})
+        self.logger.experiment.log({f"val_traj": wandb.Image(fig), "step": self.global_step})
 
         output = torch.flatten(output, start_dim=1)
         positions = torch.flatten(positions, start_dim=1)
