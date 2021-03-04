@@ -29,6 +29,7 @@ class ContinuousRosslerAttractorDataset(Dataset):
         n_iter: int = 2000000,
         delta_t: float = 1e-2,
         init_positions=[np.array([-5.75, -1.6, 0.02]), np.array([-3.75, 0.02, 2.9])],
+        n_div=64,
     ):
         super().__init__()
         self.delta_t = delta_t
@@ -41,8 +42,12 @@ class ContinuousRosslerAttractorDataset(Dataset):
             t = torch.tensor(t, dtype=torch.float)
             # print(f"t: {len(t)}")
             # print(f"traj: {traj.shape}")
-            self.trajs.append(traj)
-            self.ts.append(t)
+            step = t.size(0) // n_div
+            ruptures = [i * step for i in range(n_div)]
+            ruptures.append(t.size(0))
+            for idx in range(n_div):
+                self.trajs.append(traj[ruptures[idx] : ruptures[idx + 1]])
+                self.ts.append(t[ruptures[idx] : ruptures[idx + 1]])
 
     def __getitem__(self, index):
         return self.trajs[index], self.ts[index]
