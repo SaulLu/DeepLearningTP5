@@ -21,7 +21,7 @@ def main(args):
         filename="{epoch}-{val_loss:.2f}-{other_metric:.2f}",
         save_top_k=1,
         verbose=True,
-        monitor="val_loss",
+        monitor="val_mse",
         mode="min",
     )
 
