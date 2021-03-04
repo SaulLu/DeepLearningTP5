@@ -65,21 +65,21 @@ def main(args):
         rossler_map_true=rossler_map_true,
         rossler_model=rossler_model,
         initial_condition=args.init_pos_train,
-        prefix="train",
+        prefix="train_",
     )
     plot_pred_true_trajectories(
         wandb_logger=wandb_logger,
         rossler_map_true=rossler_map_true,
         rossler_model=rossler_model,
         initial_condition=args.init_pos_valid,
-        prefix="valid",
+        prefix="valid_",
     )
     plot_pred_true_trajectories(
         wandb_logger=wandb_logger,
         rossler_map_true=rossler_map_true,
         rossler_model=rossler_model,
         initial_condition=args.init_pos_test,
-        prefix="test",
+        prefix="test_",
     )
 
 
