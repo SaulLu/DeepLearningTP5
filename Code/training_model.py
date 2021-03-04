@@ -3,6 +3,7 @@ from statistics import plot3D_traj
 
 import matplotlib.pyplot as plt
 import numpy as np
+import torch.nn as nn
 import pytorch_lightning as pl
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
@@ -44,8 +45,10 @@ def main(args):
 
     # sdtw = SoftDTW(use_cuda=False if args.gpus is None else True, gamma=0.1)
 
+    criterion = nn.L1Loss(reduction="mean")
+
     model = Model(
-        # criterion=sdtw,
+        criterion=criterion,
         time_list=time_list,
         t1=tf,
         lr=args.lr,
