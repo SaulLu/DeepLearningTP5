@@ -150,8 +150,8 @@ class ContinuousModel(pl.LightningModule):
         # output = output.view(1, -1)
         # positions = positions.view(1, -1)
 
-        print(f"output: {output.shape}")
-        print(f"positions: {positions.shape}")
+        # print(f"output: {output.shape}")
+        # print(f"positions: {positions.shape}")
 
         mse = self.criterion(output, positions)
         loss = mse  # + self.lambda_jr * self.reg(positions, output)
@@ -173,8 +173,8 @@ class ContinuousModel(pl.LightningModule):
         output = self.ode_block(positions[0, 0, :], time_list[0])
         output = output.unsqueeze(0)
 
-        print(f"output: {output.shape}")
-        print(f"positions: {positions.shape}")
+        # print(f"output: {output.shape}")
+        # print(f"positions: {positions.shape}")
 
         mse = self.criterion(output, positions)
         # loss = mse + self.lambda_jr * self.reg(data, output)
@@ -195,8 +195,8 @@ class ContinuousModel(pl.LightningModule):
         output = self.ode_block(positions[0, 0, :], time_list[0])
         output = output.unsqueeze(0)
 
-        print(f"output: {output.shape}")
-        print(f"positions: {positions.shape}")
+        # print(f"output: {output.shape}")
+        # print(f"positions: {positions.shape}")
 
         mse = self.criterion(output, positions)
         # loss = mse + self.lambda_jr * self.reg(data, output)
@@ -222,7 +222,7 @@ class ContinuousModel(pl.LightningModule):
         options.update({"regenerate_graph": False})
         with torch.no_grad():
             traj = odesolve(self, initial_condition, options)
-        print(f"traj: {traj.shape}")
+        # print(f"traj: {traj.shape}")
         traj = traj.numpy()
         return traj, time_span
 
