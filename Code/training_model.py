@@ -24,6 +24,7 @@ def main(args):
         n_iter_test=args.n_iter_test,
         init_pos_train=args.init_pos_train,
         init_pos_test=args.init_pos_train,
+        init_pos_valid=args.init_pos_valid,
         batch_size=args.batch_size,
     )
 
@@ -37,11 +38,11 @@ def main(args):
         callbacks=[checkpoint_callback],
     )
 
-    trainer.tune(model)
+    trainer.tune(model, datamodule)
 
-    trainer.fit(model, datamodule.train_dataloader, datamodule.val_dataloader)
+    trainer.fit(model, datamodule)
 
-    trainer.test(datamodule.test_dataloader)
+    trainer.test(datamodule)
 
 
 if __name__ == "__main__":
@@ -50,6 +51,7 @@ if __name__ == "__main__":
     parser.add_argument("--n_iter_valid", type=int, default=20000)
     parser.add_argument("--n_iter_test", type=int, default=2000000)
     parser.add_argument("--init_pos_train", nargs="+", type=float, default=[-5.75, -1.6, 0.02])
+    parser.add_argument("--init_pos_valid", nargs="+", type=float, default=[0.01, 2.5, 3.07])
     parser.add_argument("--init_pos_test", nargs="+", type=float, default=[-5.70, -1.5, -0.02])
 
     parser.add_argument("--batch_size", type=int, default=256)
