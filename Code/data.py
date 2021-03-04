@@ -26,28 +26,34 @@ class DiscreteRosslerAttractorDataset(Dataset):
 class ContinuousRosslerAttractorDataset(Dataset):
     def __init__(
         self,
-        n_iter: int = 2000000,
+        n_iter: int = 200,
         delta_t: float = 1e-2,
         init_positions=[np.array([-5.75, -1.6, 0.02]), np.array([-3.75, 0.02, 2.9])],
-        n_div=64,
+        n_samples=400,
     ):
         super().__init__()
         self.delta_t = delta_t
         self.trajs = []
         self.ts = []
         rossler_map = RosslerMap(delta_t=delta_t)
+
         for init_pos in init_positions:
-            traj, t = rossler_map.full_traj(n_iter, init_pos)
-            traj = torch.tensor(traj, dtype=torch.float)
-            t = torch.tensor(t, dtype=torch.float)
-            # print(f"t: {len(t)}")
-            # print(f"traj: {traj.shape}")
-            step = t.size(0) // n_div
-            ruptures = [i * step for i in range(n_div)]
-            ruptures.append(t.size(0))
-            for idx in range(n_div):
-                self.trajs.append(traj[ruptures[idx] : ruptures[idx + 1]])
-                self.ts.append(t[ruptures[idx] : ruptures[idx + 1]])
+            init_pos_temp = init_pos
+            for i in range(n_samples):
+                if i != 0:
+                    init_pos_temp = traj[-1, :]
+                traj, t = rossler_map.full_traj(n_iter, init_pos_temp)
+                traj = torch.tensor(traj, dtype=torch.float)
+                t = torch.tensor(t, dtype=torch.float)
+                # step = t.size(0) // n_div
+                # ruptures = [i * step for i in range(n_div)]
+                # ruptures.append(t.size(0))
+                # for idx in range(n_div):
+                #     self.trajs.append(traj[ruptures[idx] : ruptures[idx + 1]])
+                #     self.ts.append(t[ruptures[idx] : ruptures[idx + 1]])
+
+                self.trajs.append(traj)
+                self.ts.append(t)
 
     def __getitem__(self, index):
         return self.trajs[index], self.ts[index]
@@ -112,12 +118,14 @@ class RosslerAttractorDataModule(pl.LightningDataModule):
                 self.n_iter_valid,
                 self.delta_t,
                 # self.init_pos_valid
+                n_samples=100,
             )
         if stage == "test" or stage is None:
             self.dataset_test = RosslerAttractorDataset(
                 self.n_iter_test,
                 self.delta_t,
                 # self.init_pos_test
+                n_samples=100,
             )
 
     def train_dataloader(self):

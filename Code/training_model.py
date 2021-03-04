@@ -37,7 +37,11 @@ def main(args):
         delta_t=args.delta_t,
     )
 
-    model = Model(lr=args.lr, delta_t=args.delta_t)
+    tf = args.n_iter_train * args.delta_t
+    time_span = np.linspace(0, tf, args.n_iter_train)
+    time_list = time_span.tolist()
+
+    model = Model(time_list=time_list, t1=tf, lr=args.lr, delta_t=args.delta_t)
 
     trainer = Trainer(
         gpus=args.gpus,
@@ -47,7 +51,7 @@ def main(args):
         callbacks=[checkpoint_callback],
     )
 
-    # trainer.tune(model, datamodule) # RUn only on CPU mode
+    # trainer.tune(model, datamodule)  # RUn only on CPU mode
 
     trainer.fit(model, datamodule)
 
@@ -98,9 +102,9 @@ def plot_pred_true_trajectories(
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("--n_iter_train", type=int, default=2000000)
-    parser.add_argument("--n_iter_valid", type=int, default=20000)
-    parser.add_argument("--n_iter_test", type=int, default=2000000)
+    parser.add_argument("--n_iter_train", type=int, default=2000)
+    parser.add_argument("--n_iter_valid", type=int, default=2000)
+    parser.add_argument("--n_iter_test", type=int, default=2000)
     parser.add_argument("--init_pos_train", nargs="+", type=float, default=[-5.75, -1.6, 0.02])
     parser.add_argument("--init_pos_valid", nargs="+", type=float, default=[0.01, 2.5, 3.07])
     parser.add_argument("--init_pos_test", nargs="+", type=float, default=[-5.70, -1.5, -0.02])

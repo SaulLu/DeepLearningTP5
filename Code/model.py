@@ -95,6 +95,8 @@ class DiscretModel(pl.LightningModule):
 class ContinuousModel(pl.LightningModule):
     def __init__(
         self,
+        time_list: list,
+        t1: float,
         hidden_size: int = 10,
         in_size: int = 3,
         out_size: int = 3,
@@ -104,6 +106,8 @@ class ContinuousModel(pl.LightningModule):
     ):
         super().__init__()
         self.save_hyperparameters()
+        self.time_list = time_list
+        self.t1 = t1
         self.in_size = in_size
         self.hidden_size = hidden_size
         self.out_size = out_size
@@ -123,7 +127,7 @@ class ContinuousModel(pl.LightningModule):
             nn.ReLU(),
         )
 
-        self.ode_block = ODEBlock(self.forward)
+        self.ode_block = ODEBlock(self.forward, self.time_list, self.t1)
 
     def forward(self, t, x):
         # t = torch.tensor(t, dtype=torch.float)
@@ -142,16 +146,20 @@ class ContinuousModel(pl.LightningModule):
         # print(f"time_list: {time_list.shape}")
         # print(f"time_list: {time_list[-1]}")
 
-        time_list = time_list.tolist()
+        # time_list = time_list.tolist()
 
-        output = self.ode_block(positions[0, 0, :], time_list[0])
-        output = output.unsqueeze(0)
+        output = self.ode_block(positions[:, 0, :])
+        output = output.permute(1, 0, -1)
 
         # output = output.view(1, -1)
         # positions = positions.view(1, -1)
 
         # print(f"output: {output.shape}")
         # print(f"positions: {positions.shape}")
+
+        # print(f"time: {time_list == self.time_list}")
+        # print(f"self.time: {time_list[0][10]}")
+        # print(f"self.time: {time_list[0][10]}")
 
         mse = self.criterion(output, positions)
         loss = mse  # + self.lambda_jr * self.reg(positions, output)
@@ -168,12 +176,15 @@ class ContinuousModel(pl.LightningModule):
         # print(f"time_list: {time_list.shape}")
         # print(f"time_list: {time_list[-1]}")
 
-        time_list = time_list.tolist()
+        # time_list = time_list.tolist()
 
-        output = self.ode_block(positions[0, 0, :], time_list[0])
-        output = output.unsqueeze(0)
+        output = self.ode_block(positions[:, 0, :])
+        # output = output.unsqueeze(0)
+        print(f"output: {output.shape}")
 
-        # print(f"output: {output.shape}")
+        output = output.permute(1, 0, -1)
+
+        print(f"output: {output.shape}")
         # print(f"positions: {positions.shape}")
 
         mse = self.criterion(output, positions)
@@ -190,10 +201,10 @@ class ContinuousModel(pl.LightningModule):
         # print(f"time_list: {time_list.shape}")
         # print(f"time_list: {time_list[-1]}")
 
-        time_list = time_list.tolist()
+        # time_list = time_list.tolist()
 
-        output = self.ode_block(positions[0, 0, :], time_list[0])
-        output = output.unsqueeze(0)
+        output = self.ode_block(positions[:, 0, :])
+        output = output.permute(1, 0, -1)
 
         # print(f"output: {output.shape}")
         # print(f"positions: {positions.shape}")
@@ -228,31 +239,14 @@ class ContinuousModel(pl.LightningModule):
 
 
 class ODEBlock(nn.Module):
-    def __init__(self, odefunc):
+    def __init__(self, odefunc, time_list, t1):
         super(ODEBlock, self).__init__()
         self.odefunc = odefunc
-        # options = {}
-        # options.update({"method": "Dopri5"})
-        # options.update({"h": None})
-        # options.update({"t0": 0.0})
-        # options.update({"t1": 1.0})
-        # options.update({"rtol": 1e-7})
-        # options.update({"atol": 1e-8})
-        # options.update({"print_neval": False})
-        # options.update({"neval_max": 1000000})
-        # options.update({"t_eval": None})
-        # options.update({"interpolation_method": "cubic"})
-        # options.update({"regenerate_graph": False})
-        # self.options = options
-
-    def forward(self, init_pos, time_list):
-        tf = time_list[-1]
-        # print(f"tf: {tf}")
         options = {}
         options.update({"method": "Dopri5"})
         options.update({"h": None})
         options.update({"t0": 0.0})
-        options.update({"t1": tf})
+        options.update({"t1": t1})
         options.update({"rtol": 1e-7})
         options.update({"atol": 1e-8})
         options.update({"print_neval": False})
@@ -260,6 +254,23 @@ class ODEBlock(nn.Module):
         options.update({"t_eval": time_list})
         options.update({"interpolation_method": "cubic"})
         options.update({"regenerate_graph": False})
-        out = odesolve(self.odefunc, init_pos, options)
+        self.options = options
+
+    def forward(self, init_pos):
+        # tf = time_list[-1]
+        # print(f"tf: {tf}")
+        # options = {}
+        # options.update({"method": "Dopri5"})
+        # options.update({"h": None})
+        # options.update({"t0": 0.0})
+        # options.update({"t1": tf})
+        # options.update({"rtol": 1e-7})
+        # options.update({"atol": 1e-8})
+        # options.update({"print_neval": False})
+        # options.update({"neval_max": 1000000})
+        # options.update({"t_eval": time_list})
+        # options.update({"interpolation_method": "cubic"})
+        # options.update({"regenerate_graph": False})
+        out = odesolve(self.odefunc, init_pos, self.options)
         # out = out.permute(1, 0, -1)
         return out
