@@ -5,3 +5,4 @@ torch==1.7.1
 numpy==1.20.1
 wandb
 git+https://github.com/facebookresearch/jacobian_regularizer
+TorchDiffEqPack
