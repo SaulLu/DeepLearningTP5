@@ -1,4 +1,5 @@
 import numpy as np
+import wandb
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
@@ -186,7 +187,7 @@ class ContinuousModel(pl.LightningModule):
 
         output = output.permute(1, 0, -1)
 
-        ax, fig = plot3D_traj(output[0], positions[0])
+        ax, fig = plot3D_traj(output[0].cpu(), positions[0].cpu())
         self.logger.experiment.log({f"val_traj": wandb.Image(fig), "step": self.global_step})
 
         output = torch.flatten(output, start_dim=1)
