@@ -71,7 +71,7 @@ def lyapunov_exponent(traj, jacobian, max_it=1000, delta_t=1e-3, mode="discrete"
     return np.mean(np.log(rs), axis=0) / delta_t
 
 
-def continuous_newton(f, jacob, x):
+def newton(f, jacob, x):
     # newton raphson method
     tol = 1
     while tol > 1e-5:
