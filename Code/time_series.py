@@ -16,7 +16,7 @@ class Rossler_model:
         self.nb_steps = int(TRAJECTORY_DUR // self.delta_t)  # int(10000 // self.delta_t)
 
         self.rosler_nn = model_cls.load_from_checkpoint(checkpoint_path=checkpoint_path)
-        self.rosler_nn.eval()
+        self.rosler_nn.normalize = False
         self.initial_condition = np.array(INITIAL_CONDITION)
 
     def full_traj(self, initial_condition=np.array(INITIAL_CONDITION), y_only=True):

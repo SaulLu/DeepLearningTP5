@@ -39,6 +39,8 @@ def main(args):
         delta_t=args.delta_t,
     )
 
+    datamodule.setup()
+
     # tf = args.n_iter_train * args.delta_t
     # time_span = np.linspace(0, tf, args.n_iter_train)
     # time_list = time_span.tolist()
@@ -53,6 +55,8 @@ def main(args):
         # t1=tf,
         lr=args.lr,
         delta_t=args.delta_t,
+        mean=datamodule.dataset_train.mean,
+        std=datamodule.dataset_train.std,
     )
 
     trainer = Trainer(

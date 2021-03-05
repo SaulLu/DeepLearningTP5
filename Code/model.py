@@ -20,6 +20,8 @@ class DiscretModel(pl.LightningModule):
         lr: float = 1e-3,
         delta_t: float = 1e-3,
         lambda_jr=0.01,  # lambda jacobian regularisation
+        mean=None,
+        std=None,
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -30,6 +32,9 @@ class DiscretModel(pl.LightningModule):
         self.lr = lr
         self.lambda_jr = lambda_jr
         self.delta_t = delta_t
+        self.normalize = True
+        self.mean = mean
+        self.std = std
 
         self.reg = JacobianReg()
 
@@ -43,7 +48,11 @@ class DiscretModel(pl.LightningModule):
         )
 
     def forward(self, x):
-        return x + self.layers(x) * self.delta_t
+        if self.normalize or self.mean is None or self.std is None:
+            return x + self.layers(x) * self.delta_t
+        else:
+            x = (x - self.mean) / self.std
+            return (x + self.layers(x) * self.delta_t) * self.std + self.mean
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.lr)
@@ -111,9 +120,11 @@ class DiscretModel(pl.LightningModule):
         self.log("test_mse", mse)
 
     def full_traj(self, trajectory_duration, initial_condition):
+        initial_condition = initial_condition[np.newaxis, :]
+
         nb_steps = int(trajectory_duration // self.delta_t)
 
-        traj = [initial_condition[np.newaxis, :]]
+        traj = []
         t = [self.delta_t]
         with torch.no_grad():
             for _ in range(nb_steps - 1):
