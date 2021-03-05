@@ -76,8 +76,8 @@ class DiscretModel(pl.LightningModule):
         pred_traj = None
         true_traj = None
         for output in outputs:
-            w_t2_pred = output["w_t2_pred"].numpy()
-            w_t2 = output["w_t2"].numpy()
+            w_t2_pred = output["w_t2_pred"].cpu().numpy()
+            w_t2 = output["w_t2"].cpu().numpy()
 
             if pred_traj is None:
                 pred_traj = w_t2_pred
