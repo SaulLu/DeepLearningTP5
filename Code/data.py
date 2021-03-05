@@ -10,7 +10,7 @@ from rossler_map import RosslerMap
 class DiscreteRosslerAttractorDataset(Dataset):
     def __init__(
         self,
-        n_iter: int = 2000000,
+        n_iter: int = 1e7 + 1,
         delta_t: float = 1e-2,
         init_pos=np.array([-5.75, -1.6, 0.02]),
         mean=None,
@@ -77,7 +77,11 @@ class DiscreteRosslerAttractorDataModule(pl.LightningDataModule):
         )
 
     def train_dataloader(self):
-        return DataLoader(self.dataset_train, batch_size=self.batch_size, shuffle=True)
+        return DataLoader(
+            self.dataset_train,
+            batch_size=self.batch_size,
+            # shuffle=True
+        )
 
     def val_dataloader(self):
         return DataLoader(self.dataset_valid, batch_size=self.batch_size)

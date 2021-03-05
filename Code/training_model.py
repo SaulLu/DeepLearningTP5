@@ -104,7 +104,7 @@ def plot_pred_true_trajectories(
     if isinstance(initial_condition, tuple) or isinstance(initial_condition, list):
         initial_condition = np.array(initial_condition)
 
-    traj_pred, _ = rossler_model.full_traj(initial_condition=initial_condition, y_only=False)
+    traj_pred = rossler_model.full_traj(initial_condition=initial_condition, y_only=False)
     traj_true, _ = rossler_map_true.full_traj(
         init_pos=initial_condition, nb_steps=rossler_model.nb_steps
     )
