@@ -71,9 +71,11 @@ def main(args):
 
     checkpoint_path = checkpoint_callback.best_model_path
 
-    rossler_model = Rossler_model(delta_t=1e-2, model_cls=Model, checkpoint_path=checkpoint_path)
+    rossler_model = Rossler_model(
+        delta_t=args.delta_t, model_cls=Model, checkpoint_path=checkpoint_path
+    )
 
-    rossler_map_true = RosslerMap(delta_t=1e-2)
+    rossler_map_true = RosslerMap(delta_t=args.delta_t)
 
     plot_pred_true_trajectories(
         wandb_logger=wandb_logger,

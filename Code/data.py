@@ -64,7 +64,7 @@ class DiscreteRosslerAttractorDataModule(pl.LightningDataModule):
         RosslerAttractorDataset = DiscreteRosslerAttractorDataset
 
         self.dataset_train = RosslerAttractorDataset(
-            self.n_iter_train, self.delta_t, self.init_pos_train
+            n_iter=self.n_iter_train, delta_t=self.delta_t, init_pos=self.init_pos_train
         )
         mean = self.dataset_train.mean
         std = self.dataset_train.std
