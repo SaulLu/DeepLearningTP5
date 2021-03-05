@@ -121,6 +121,7 @@ class DiscretModel(pl.LightningModule):
                 traj.append(new_coord)
                 t.append(t[-1] + self.delta_t)
         traj = np.concatenate(traj, axis=0)
+        print(f"traj: {traj.shape}")
         t = np.array(t)
 
         return traj, t

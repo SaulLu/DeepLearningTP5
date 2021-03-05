@@ -104,10 +104,12 @@ def plot_pred_true_trajectories(
     if isinstance(initial_condition, tuple) or isinstance(initial_condition, list):
         initial_condition = np.array(initial_condition)
 
-    traj_pred = rossler_model.full_traj(initial_condition=initial_condition, y_only=False)
+    traj_pred, _ = rossler_model.full_traj(initial_condition=initial_condition, y_only=False)
     traj_true, _ = rossler_map_true.full_traj(
         init_pos=initial_condition, nb_steps=rossler_model.nb_steps
     )
+    print(f"traj_pred: {traj_pred.shape}")
+    print(f"traj_true: {traj_true.shape}")
     ax, fig = plot3D_traj(traj_pred, traj_true)
     wandb_logger.experiment.log({f"{prefix if prefix else ''}traj": wandb.Image(fig)})
 
