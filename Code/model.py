@@ -52,8 +52,11 @@ class DiscretModel(pl.LightningModule):
         if self.normalize or self.mean is None or self.std is None:
             return x + self.layers(x) * self.delta_t
         else:
-            x = (x - self.mean) / self.std
-            return (x + self.layers(x) * self.delta_t) * self.std + self.mean
+            x = ((x - self.mean) / self.std).float()
+            out = self.layers(x)
+            out = x + out * self.delta_t
+            out = (out * self.std + self.mean).float()          
+            return out
 
     def configure_optimizers(self):
         for param in self.parameters():
@@ -136,7 +139,7 @@ class DiscretModel(pl.LightningModule):
 
     def full_traj(self, trajectory_duration, initial_condition):
         initial_condition = initial_condition[np.newaxis, :]
-
+        print(f"initial_condition: {initial_condition}")
         nb_steps = int(trajectory_duration // self.delta_t)
 
         traj = [initial_condition]
