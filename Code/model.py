@@ -130,7 +130,7 @@ class DiscretModel(pl.LightningModule):
 
         nb_steps = int(trajectory_duration // self.delta_t)
 
-        traj = []
+        traj = [initial_condition]
         t = [self.delta_t]
         with torch.no_grad():
             for _ in range(nb_steps - 1):
