@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 from jacobian import JacobianReg
 from scipy.integrate import solve_ivp
+from scipy.linalg import logm
 
 from TorchDiffEqPack import odesolve
 from statistics import plot3D_traj
@@ -55,7 +56,7 @@ class DiscretModel(pl.LightningModule):
             x = ((x - self.mean) / self.std).float()
             out = self.layers(x)
             out = x + out * self.delta_t
-            out = (out * self.std + self.mean).float()          
+            out = (out * self.std + self.mean).float()
             return out
 
     def configure_optimizers(self):
@@ -154,6 +155,32 @@ class DiscretModel(pl.LightningModule):
         t = np.array(t)
 
         return traj, t
+
+    def jacobian(self):
+        """Jacobian of the net
+
+        Returns:
+            [type]: [description]
+        """
+        return lambda w: torch.autograd.functional.jacobian(
+            self, torch.tensor(w, dtype=torch.float)
+        )
+        # return lambda w: (
+        #     logm(
+        #         (
+        #             (
+        #                 torch.autograd.functional.jacobian(self, torch.tensor(w, dtype=torch.float))
+        #                 - torch.eye(3)
+        #             )
+        #             / delta_t
+        #         )
+        #         .cpu()
+        #         .numpy()
+        #     )
+        # )
+        # return lambda w: (
+        #     (torch.autograd.functional.jacobian(self, torch.tensor(w, dtype=torch.float)) - torch.eye(3)) / delta_t
+        # )
 
 
 class ContinuousModel(pl.LightningModule):

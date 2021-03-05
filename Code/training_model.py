@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from statistics import plot3D_traj
+
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -15,6 +15,12 @@ from model import DiscretModel as Model
 from rossler_map import RosslerMap
 from time_series import Rossler_model
 from pytorch_softdtw_cuda.soft_dtw_cuda import SoftDTW
+from statistics_log import (
+    plot_pred_true_trajectories,
+    compute_pred_true_traj,
+    compute_pred_true_equilibrium_state,
+    compute_pred_true_lyaponov,
+)
 
 
 def main(args):
@@ -73,51 +79,45 @@ def main(args):
 
     trainer.test(model=model, datamodule=datamodule)
 
-    checkpoint_path = checkpoint_callback.best_model_path
+    #### Tests ####
 
-    rossler_model = Rossler_model(
-        delta_t=args.delta_t, model_cls=Model, checkpoint_path=checkpoint_path
-    )
+    TRAJECTORY_DUR = 10000
+    nb_steps = int(TRAJECTORY_DUR // args.delta_t)
+
+    trained_model = Model.load_from_checkpoint(checkpoint_path=checkpoint_callback.best_model_path)
+    trained_model.normalize = False
 
     rossler_map_true = RosslerMap(delta_t=args.delta_t)
 
-    plot_pred_true_trajectories(
-        wandb_logger=wandb_logger,
-        rossler_map_true=rossler_map_true,
-        rossler_model=rossler_model,
-        initial_condition=args.init_pos_train,
-        prefix="train_",
+    # Train set
+    traj_pred, traj_true, time_list = compute_pred_true_traj(
+        trained_model, rossler_map_true, args.init_pos_train, nb_steps
     )
-    plot_pred_true_trajectories(
-        wandb_logger=wandb_logger,
-        rossler_map_true=rossler_map_true,
-        rossler_model=rossler_model,
-        initial_condition=args.init_pos_valid,
-        prefix="valid_",
+    plot_pred_true_trajectories(wandb_logger, traj_pred, traj_true, time_list, prefix="train_")
+    compute_pred_true_lyaponov(
+        wandb_logger,
+        trained_model,
+        rossler_map_true,
+        traj_pred,
+        traj_true,
+        nb_steps,
+        mode="discrete",
     )
-    plot_pred_true_trajectories(
-        wandb_logger=wandb_logger,
-        rossler_map_true=rossler_map_true,
-        rossler_model=rossler_model,
-        initial_condition=args.init_pos_test,
-        prefix="test_",
+    compute_pred_true_equilibrium_state(
+        wandb_logger, trained_model, rossler_map_true, mode="discrete"
     )
 
-
-def plot_pred_true_trajectories(
-    wandb_logger, rossler_map_true, rossler_model, initial_condition, prefix=None
-):
-    if isinstance(initial_condition, tuple) or isinstance(initial_condition, list):
-        initial_condition = np.array(initial_condition)
-
-    traj_pred = rossler_model.full_traj(initial_condition=initial_condition, y_only=False)
-    traj_true, _ = rossler_map_true.full_traj(
-        init_pos=initial_condition, nb_steps=rossler_model.nb_steps
+    # Val set
+    traj_pred, traj_true, time_list = compute_pred_true_traj(
+        trained_model, rossler_map_true, args.init_pos_valid, nb_steps
     )
-    print(f"traj_pred: {traj_pred.shape}")
-    print(f"traj_true: {traj_true.shape}")
-    ax, fig = plot3D_traj(traj_pred, traj_true)
-    wandb_logger.experiment.log({f"{prefix if prefix else ''}traj": wandb.Image(fig)})
+    plot_pred_true_trajectories(wandb_logger, traj_pred, traj_true, time_list, prefix="valid_")
+
+    # Test set
+    traj_pred, traj_true, time_list = compute_pred_true_traj(
+        trained_model, rossler_map_true, args.init_pos_test, nb_steps
+    )
+    plot_pred_true_trajectories(wandb_logger, traj_pred, traj_true, time_list, prefix="test_")
 
 
 if __name__ == "__main__":
