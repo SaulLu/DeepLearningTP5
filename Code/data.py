@@ -67,7 +67,6 @@ class DiscreteRosslerAttractorDataModule(pl.LightningDataModule):
             n_iter=self.n_iter_train,
             delta_t=self.delta_t,
             init_pos=self.init_pos_train,
-            shuffle=True,
         )
         mean = self.dataset_train.mean
         std = self.dataset_train.std
@@ -80,11 +79,7 @@ class DiscreteRosslerAttractorDataModule(pl.LightningDataModule):
         )
 
     def train_dataloader(self):
-        return DataLoader(
-            self.dataset_train,
-            batch_size=self.batch_size,
-            # shuffle=True
-        )
+        return DataLoader(self.dataset_train, batch_size=self.batch_size, shuffle=True)
 
     def val_dataloader(self):
         return DataLoader(self.dataset_valid, batch_size=self.batch_size)
