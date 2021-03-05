@@ -1,8 +1,20 @@
-from statistics import plot3D_traj, lyapunov_exponent, newton, plot_x_traj, plot_y_traj, plot_z_traj
-import numpy as np
-import wandb
-import torch
+from statistics import (
+    lyapunov_exponent,
+    newton,
+    plot3D_traj,
+    plot_x_pdf,
+    plot_x_traj,
+    plot_y_pdf,
+    plot_y_traj,
+    plot_z_pdf,
+    plot_z_traj,
+)
+
 import matplotlib.pyplot as plt
+import numpy as np
+import torch
+
+import wandb
 
 
 def compute_pred_true_traj(trained_model, rossler_map_true, initial_condition, nb_step):

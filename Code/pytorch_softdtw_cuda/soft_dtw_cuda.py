@@ -21,13 +21,14 @@
 # SOFTWARE.
 # ----------------------------------------------------------------------------------------------------------------------
 
+import math
+
 import numpy as np
 import torch
 import torch.cuda
-from numba import jit
+from numba import cuda, jit
 from torch.autograd import Function
-from numba import cuda
-import math
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 @cuda.jit

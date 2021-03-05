@@ -1,14 +1,16 @@
+from statistics import plot3D_traj
+
 import numpy as np
-import wandb
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 from jacobian import JacobianReg
 from scipy.integrate import solve_ivp
 from scipy.linalg import logm
-from tqdm import tqdm
 from TorchDiffEqPack import odesolve
-from statistics import plot3D_traj
+from tqdm import tqdm
+
+import wandb
 
 
 class DiscretModel(pl.LightningModule):

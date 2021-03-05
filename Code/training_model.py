@@ -1,26 +1,25 @@
+import os
 from argparse import ArgumentParser
 from pathlib import Path
-import os
+
 import matplotlib.pyplot as plt
 import numpy as np
-import torch.nn as nn
 import pytorch_lightning as pl
+import torch.nn as nn
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
 import wandb
-from data import DiscreteRosslerAttractorDataModule as RosslerAttractorDataModule
+from data import \
+    DiscreteRosslerAttractorDataModule as RosslerAttractorDataModule
 from model import DiscretModel as Model
-from rossler_map import RosslerMap
-from time_series import Rossler_model
 from pytorch_softdtw_cuda.soft_dtw_cuda import SoftDTW
-from statistics_log import (
-    plot_pred_true_trajectories,
-    compute_pred_true_traj,
-    compute_pred_true_equilibrium_state,
-    compute_pred_true_lyaponov,
-)
+from rossler_map import RosslerMap
+from statistics_log import (compute_pred_true_equilibrium_state,
+                            compute_pred_true_lyaponov, compute_pred_true_traj,
+                            plot_pred_true_trajectories)
+from time_series import Rossler_model
 
 
 def main(args):

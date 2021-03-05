@@ -3,8 +3,8 @@ from statistics import plot3D_traj
 
 import matplotlib.pyplot as plt
 import numpy as np
-import torch.nn as nn
 import pytorch_lightning as pl
+import torch.nn as nn
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
@@ -12,9 +12,9 @@ from pytorch_lightning.loggers import WandbLogger
 import wandb
 from data import RosslerAttractorDataModule
 from model import ContinuousModel as Model
+from pytorch_softdtw_cuda.soft_dtw_cuda import SoftDTW
 from rossler_map import RosslerMap
 from time_series import Rossler_model
-from pytorch_softdtw_cuda.soft_dtw_cuda import SoftDTW
 
 
 def main(args):
