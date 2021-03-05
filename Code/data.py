@@ -192,7 +192,11 @@ class RosslerAttractorDataModule(pl.LightningDataModule):
             )
 
     def train_dataloader(self):
-        return DataLoader(self.dataset_train, batch_size=self.batch_size, shuffle=True)
+        return DataLoader(
+            self.dataset_train,
+            batch_size=self.batch_size,
+            # shuffle=True
+        )
 
     def val_dataloader(self):
         return DataLoader(self.dataset_valid, batch_size=self.batch_size)
