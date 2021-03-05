@@ -73,11 +73,19 @@ class DiscretModel(pl.LightningModule):
         return {"w_t2": w_t2, "w_t2_pred": w_t2_pred}
 
     def validation_epoch_end(self, outputs):
-        pred_traj = []
-        true_traj = []
+        pred_traj = None
+        true_traj = None
         for output in outputs:
-            pred_traj.append(output["pred_traj"])
-            pred_traj.append(output["true_traj"])
+            w_t2_pred = output["w_t2_pred"].numpy()
+            w_t2 = output["w_t2"].numpy()
+
+            if pred_traj is None:
+                pred_traj = w_t2_pred
+                true_traj = w_t2
+            true_traj = np.concatenate((true_traj, w_t2), axis=0)
+            pred_traj = np.concatenate((pred_traj, w_t2_pred), axis=0)
+            # print(f"true_traj: {true_traj.shape}")
+            # print(f"pred_traj: {pred_traj.shape}")
         ax, fig = plot3D_traj(pred_traj, true_traj)
         self.logger.experiment.log(
             {f"val_traj": wandb.Image(fig), "epoch": self.current_epoch}, commit=False

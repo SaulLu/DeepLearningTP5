@@ -11,7 +11,7 @@ from pytorch_lightning.loggers import WandbLogger
 
 import wandb
 from data import DiscreteRosslerAttractorDataModule as RosslerAttractorDataModule
-from model import DiscreteModel as Model
+from model import DiscretModel as Model
 from rossler_map import RosslerMap
 from time_series import Rossler_model
 from pytorch_softdtw_cuda.soft_dtw_cuda import SoftDTW

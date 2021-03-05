@@ -12,6 +12,8 @@ class DiscreteRosslerAttractorDataset(Dataset):
         self, n_iter: int = 2000000, delta_t: float = 1e-2, init_pos=np.array([-5.75, -1.6, 0.02])
     ):
         super().__init__()
+        if isinstance(init_pos, tuple) or isinstance(init_pos, list):
+            init_pos = np.array(init_pos)
         rossler_map = RosslerMap(delta_t=delta_t)
         self.traj, _ = rossler_map.full_traj(n_iter, init_pos)
         self.traj_n_1 = torch.tensor(self.traj, dtype=torch.float)
@@ -21,7 +23,7 @@ class DiscreteRosslerAttractorDataset(Dataset):
         return tuple([self.traj_n_1[index], self.traj_n_2[index + 1]])
 
     def __len__(self):
-        return self.traj.size(0) - 1  # Last item don't have true_y
+        return self.traj_n_1.size(0) - 1  # Last item don't have true_y
 
 
 class DiscreteRosslerAttractorDataModule(pl.LightningDataModule):
@@ -47,7 +49,7 @@ class DiscreteRosslerAttractorDataModule(pl.LightningDataModule):
         self.batch_size = batch_size
 
     def setup(self, stage=None):
-        RosslerAttractorDataset = ContinuousRosslerAttractorDataset
+        RosslerAttractorDataset = DiscreteRosslerAttractorDataset
         if stage == "fit" or stage is None:
             self.dataset_train = RosslerAttractorDataset(
                 self.n_iter_train, self.delta_t, self.init_pos_train
