@@ -34,8 +34,8 @@ class DiscretModel(pl.LightningModule):
         self.lambda_jr = lambda_jr
         self.delta_t = delta_t
         self.normalize = True
-        self.mean = mean
-        self.std = std
+        self.mean = torch.tensor(mean, dtype=float)
+        self.std = torch.tensor(std, dtype=float)
 
         self.reg = JacobianReg()
 
@@ -64,13 +64,14 @@ class DiscretModel(pl.LightningModule):
             print(f"param: {param.shape}")
         optim_adam = torch.optim.Adam(self.parameters(), lr=self.lr)
         # print(f"parameters: {len(list(self.parameters()))}")
-        return [optim_adam], (
-            [
-                torch.optim.lr_scheduler.MultiStepLR(
-                    optim_adam, milestones=[1, 2], gamma=0.1, last_epoch=-1
-                )
-            ]
-        )
+        return optim_adam
+        # return [optim_adam], (
+        #     [
+        #         torch.optim.lr_scheduler.MultiStepLR(
+        #             optim_adam, milestones=[1, 2], gamma=0.1, last_epoch=-1
+        #         )
+        #     ]
+        # )
 
     def training_step(self, batch, batch_idx):
         # for param in self.parameters():
@@ -150,22 +151,20 @@ class DiscretModel(pl.LightningModule):
                 traj.append(new_coord)
                 # t.append(t[-1] + self.delta_t)
         # traj = np.concatenate(traj, axis=0)
-        traj = torch.stack(traj, axis=0)
+        traj = torch.cat(traj, axis=0)
         traj = traj.numpy()
         print(f"traj: {traj.shape}")
         # t = np.array(t)
 
         return traj, t
 
-    def jacobian(self):
+    def jacobian(self, w):
         """Jacobian of the net
 
         Returns:
             [type]: [description]
         """
-        return lambda w: torch.autograd.functional.jacobian(
-            self, torch.tensor(w, dtype=torch.float)
-        )
+        return torch.autograd.functional.jacobian(self, torch.tensor(w, dtype=torch.float))
         # return lambda w: (
         #     logm(
         #         (

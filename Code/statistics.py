@@ -74,9 +74,12 @@ def lyapunov_exponent(traj, jacobian, max_it=1000, delta_t=1e-3, mode="discrete"
 def newton(f, jacob, x):
     # newton raphson method
     tol = 1
-    while tol > 1e-5:
+    compt_max = 10000000
+    compt = 0
+    while tol > 1e-5 and compt < compt_max:
         # WARNING this is true for the jacobian of the continuous system!
         tol = x
-        x = x - solve(jacob(x), f(v=x))
+        x = x - solve(jacob(x), f(x))
         tol = norm(tol - x)
+        compt += 1
     return x

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 def compute_pred_true_traj(trained_model, rossler_map_true, initial_condition, nb_step):
     if isinstance(initial_condition, tuple) or isinstance(initial_condition, list):
         initial_condition = np.array(initial_condition)
-    traj_pred = trained_model.full_traj(init_pos=initial_condition, nb_steps=nb_step)
+    traj_pred, time_list = trained_model.full_traj(init_pos=initial_condition, nb_steps=nb_step)
     traj_true, time_list = rossler_map_true.full_traj(init_pos=initial_condition, nb_steps=nb_step)
     return traj_pred, traj_true, time_list
 
@@ -97,7 +97,9 @@ def compute_pred_true_equilibrium_state(
             / trained_model.delta_t
         )
 
-        fix_point_pred = newton(f_system, jacobian_system, init_pos)
+        with torch.no_grad():
+            fix_point_pred = newton(f_system, jacobian_system, init_pos)
+
         fix_point_true = rossler_map_true.equilibrium()
 
         fix_point_error = np.abs(fix_point_pred - fix_point_true)

@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
-
-
+from pathlib import Path
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 import torch.nn as nn
@@ -63,6 +63,7 @@ def main(args):
         delta_t=args.delta_t,
         mean=datamodule.dataset_train.mean,
         std=datamodule.dataset_train.std,
+        hidden_size=15,
     )
 
     trainer = Trainer(
@@ -81,10 +82,13 @@ def main(args):
 
     #### Tests ####
 
-    TRAJECTORY_DUR = 10000
+    TRAJECTORY_DUR = 1000
     nb_steps = int(TRAJECTORY_DUR // args.delta_t)
 
-    trained_model = Model.load_from_checkpoint(checkpoint_path=checkpoint_callback.best_model_path)
+    checkpoint_path = Path(checkpoint_callback.best_model_path)
+    save_dir_path = checkpoint_path.parent
+
+    trained_model = Model.load_from_checkpoint(checkpoint_path=checkpoint_path)
     trained_model.normalize = False
 
     rossler_map_true = RosslerMap(delta_t=args.delta_t)
@@ -93,6 +97,11 @@ def main(args):
     traj_pred, traj_true, time_list = compute_pred_true_traj(
         trained_model, rossler_map_true, args.init_pos_train, nb_steps
     )
+
+    np.save(os.path.join(save_dir_path, "traj_pred_train.npy"), traj_pred)
+    np.save(os.path.join(save_dir_path, "traj_true_train.npy"), traj_true)
+    np.save(os.path.join(save_dir_path, "time_list_train.npy"), time_list)
+
     plot_pred_true_trajectories(wandb_logger, traj_pred, traj_true, time_list, prefix="train_")
     compute_pred_true_lyaponov(
         wandb_logger,
@@ -111,12 +120,22 @@ def main(args):
     traj_pred, traj_true, time_list = compute_pred_true_traj(
         trained_model, rossler_map_true, args.init_pos_valid, nb_steps
     )
+
+    np.save(os.path.join(save_dir_path, "traj_pred_valid.npy"), traj_pred)
+    np.save(os.path.join(save_dir_path, "traj_true_valid.npy"), traj_true)
+    np.save(os.path.join(save_dir_path, "time_list_valid.npy"), time_list)
+
     plot_pred_true_trajectories(wandb_logger, traj_pred, traj_true, time_list, prefix="valid_")
 
     # Test set
     traj_pred, traj_true, time_list = compute_pred_true_traj(
         trained_model, rossler_map_true, args.init_pos_test, nb_steps
     )
+
+    np.save(os.path.join(save_dir_path, "traj_pred_test.npy"), traj_pred)
+    np.save(os.path.join(save_dir_path, "traj_true_test.npy"), traj_true)
+    np.save(os.path.join(save_dir_path, "time_list_test.npy"), time_list)
+
     plot_pred_true_trajectories(wandb_logger, traj_pred, traj_true, time_list, prefix="test_")
 
 
