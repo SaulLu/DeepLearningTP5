@@ -45,7 +45,7 @@ def main(args):
 
     # sdtw = SoftDTW(use_cuda=False if args.gpus is None else True, gamma=0.1)
 
-    criterion = nn.L1Loss(reduction="mean")
+    criterion = nn.MSELoss(reduction="mean")
 
     model = Model(
         criterion=criterion,
