@@ -29,9 +29,42 @@ def plot_i_traj(traj_pred, traj_true, time_list, idx):
     fig = plt.figure()
     ax = fig.gca()
     ax.plot(time_list, traj_true[:, idx], "-.", label="true")
+    ax.plot(time_list, traj_pred[:, idx], "-.", label="pred")
+    ax.legend()
+    return ax, fig
+
+
+def plot_x_pdf(traj_pred, traj_true, time_list):
+    return plot_i_pdf(traj_pred, traj_true, time_list, 0)
+
+
+def plot_y_pdf(traj_pred, traj_true, time_list):
+    return plot_i_pdf(traj_pred, traj_true, time_list, 1)
+
+
+def plot_z_pdf(traj_pred, traj_true, time_list):
+    return plot_i_pdf(traj_pred, traj_true, time_list, 2)
+
+
+def plot_i_pdf(traj_pred, traj_true, time_list, idx):
+    fig = plt.figure()
+    ax = fig.gca()
+
+    plt.hist(traj_true[:, idx], label="true", alpha=0.8)
+    plt.hist(traj_pred[:, idx], label="pred", alpha=0.8)
+
+    ax.plot(time_list, traj_true[:, idx], "-.", label="true")
     ax.plot(time_list, traj_pred[:, idx], "-.", label="true")
     ax.legend()
     return ax, fig
+
+
+def autocorrelation():
+    # TODO
+    pass
+
+
+##### Following metrics are dynamics not statistics !!
 
 
 def lyapunov_exponent(traj, jacobian, max_it=1000, delta_t=1e-3, mode="discrete"):

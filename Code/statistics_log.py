@@ -21,6 +21,7 @@ def plot_pred_true_trajectories(wandb_logger, traj_pred, traj_true, time_list, p
         plt.title("traj_3D")
         plt.show()
 
+    # Trajectory for X, Y and Z
     ax, fig = plot_x_traj(traj_pred, traj_true, time_list)
     if wandb_logger is not None:
         wandb_logger.experiment.log({f"{prefix if prefix else ''}traj_x": wandb.Image(fig)})
@@ -40,6 +41,28 @@ def plot_pred_true_trajectories(wandb_logger, traj_pred, traj_true, time_list, p
         wandb_logger.experiment.log({f"{prefix if prefix else ''}traj_z": wandb.Image(fig)})
     else:
         plt.title("traj_z")
+        plt.show()
+
+    # PDF for X, Y and Z
+    ax, fig = plot_x_pdf(traj_pred, traj_true, time_list)
+    if wandb_logger is not None:
+        wandb_logger.experiment.log({f"{prefix if prefix else ''}pdf_x": wandb.Image(fig)})
+    else:
+        plt.title("pdf_x")
+        plt.show()
+
+    ax, fig = plot_y_pdf(traj_pred, traj_true, time_list)
+    if wandb_logger is not None:
+        wandb_logger.experiment.log({f"{prefix if prefix else ''}pdf_y": wandb.Image(fig)})
+    else:
+        plt.title("pdf_y")
+        plt.show()
+
+    ax, fig = plot_z_pdf(traj_pred, traj_true, time_list)
+    if wandb_logger is not None:
+        wandb_logger.experiment.log({f"{prefix if prefix else ''}pdf_z": wandb.Image(fig)})
+    else:
+        plt.title("pdf_z")
         plt.show()
 
 
