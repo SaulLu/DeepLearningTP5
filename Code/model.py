@@ -43,8 +43,9 @@ class DiscretModel(pl.LightningModule):
             nn.ReLU(),
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
-            nn.Linear(hidden_size, out_size),
+            nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
+            nn.Linear(hidden_size, out_size),
         )
 
     def forward(self, x):
@@ -57,14 +58,21 @@ class DiscretModel(pl.LightningModule):
     def configure_optimizers(self):
         for param in self.parameters():
             print(f"param: {param.shape}")
+        optim_adam = torch.optim.Adam(self.parameters(), lr=self.lr)
         # print(f"parameters: {len(list(self.parameters()))}")
-        return torch.optim.Adam(self.parameters(), lr=self.lr)
+        return [optim_adam], (
+            [
+                torch.optim.lr_scheduler.MultiStepLR(
+                    optim_adam, milestones=[1, 2], gamma=0.1, last_epoch=-1, verbose=False
+                )
+            ]
+        )
 
     def training_step(self, batch, batch_idx):
-        for param in self.parameters():
-            if len(param.data.shape) == 2:
-                print(f"param: {param.data[0][0]}")
-                break
+        # for param in self.parameters():
+        #     if len(param.data.shape) == 2:
+        #         print(f"param: {param.data[0][0]}")
+        #         break
         w_t1, w_t2 = batch
         # w_t1.requires_grad = True  # this is essential!
 
