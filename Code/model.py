@@ -63,7 +63,7 @@ class DiscretModel(pl.LightningModule):
         return [optim_adam], (
             [
                 torch.optim.lr_scheduler.MultiStepLR(
-                    optim_adam, milestones=[1, 2], gamma=0.1, last_epoch=-1, verbose=False
+                    optim_adam, milestones=[1, 2], gamma=0.1, last_epoch=-1
                 )
             ]
         )
