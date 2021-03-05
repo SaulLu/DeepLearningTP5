@@ -55,9 +55,15 @@ class DiscretModel(pl.LightningModule):
             return (x + self.layers(x) * self.delta_t) * self.std + self.mean
 
     def configure_optimizers(self):
+        for param in self.parameters():
+            print(f"param: {param.shape}")
+        # print(f"parameters: {len(list(self.parameters()))}")
         return torch.optim.Adam(self.parameters(), lr=self.lr)
 
     def training_step(self, batch, batch_idx):
+        for param in self.parameters():
+            if len(param.data.shape) == 2:
+                print(f"param: {param.data[0][0]}")
         w_t1, w_t2 = batch
         # w_t1.requires_grad = True  # this is essential!
 
