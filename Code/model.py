@@ -59,7 +59,7 @@ class DiscretModel(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         w_t1, w_t2 = batch
-        w_t1.requires_grad = True  # this is essential!
+        # w_t1.requires_grad = True  # this is essential!
 
         w_t2_pred = self(w_t1)
         mse = self.criterion(w_t2_pred, w_t2)
@@ -71,7 +71,7 @@ class DiscretModel(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         w_t1, w_t2 = batch
-        w_t1.requires_grad = True  # this is essential!
+        # w_t1.requires_grad = True  # this is essential!
 
         w_t2_pred = self(w_t1)
         mse = self.criterion(w_t2_pred, w_t2)

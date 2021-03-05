@@ -69,7 +69,7 @@ def main(args):
 
     # trainer.tune(model, datamodule)  # RUn only on CPU mode
 
-    trainer.fit(model, datamodule)
+    trainer.fit(model=model, datamodule=datamodule)
 
     trainer.test(model=model, datamodule=datamodule)
 
