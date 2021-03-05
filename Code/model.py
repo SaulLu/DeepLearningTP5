@@ -54,7 +54,7 @@ class DiscretModel(pl.LightningModule):
 
         w_t2_pred = self(w_t1)
         mse = self.criterion(w_t2_pred, w_t2)
-        loss = mse + self.lambda_jr * self.reg(w_t1, w_t2_pred)
+        loss = mse  # + self.lambda_jr * self.reg(w_t1, w_t2_pred)
 
         self.log("train_loss", loss, on_step=True, on_epoch=True)
         self.log("train_mse", mse, on_step=True, on_epoch=True)
