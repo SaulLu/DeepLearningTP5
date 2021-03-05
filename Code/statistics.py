@@ -52,9 +52,6 @@ def plot_i_pdf(traj_pred, traj_true, time_list, idx):
 
     plt.hist(traj_true[:, idx], label="true", alpha=0.8)
     plt.hist(traj_pred[:, idx], label="pred", alpha=0.8)
-
-    ax.plot(time_list, traj_true[:, idx], "-.", label="true")
-    ax.plot(time_list, traj_pred[:, idx], "-.", label="true")
     ax.legend()
     return ax, fig
 
