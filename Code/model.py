@@ -6,7 +6,7 @@ import torch.nn as nn
 from jacobian import JacobianReg
 from scipy.integrate import solve_ivp
 from scipy.linalg import logm
-
+from tqdm import tqdm
 from TorchDiffEqPack import odesolve
 from statistics import plot3D_traj
 
@@ -138,21 +138,22 @@ class DiscretModel(pl.LightningModule):
         # self.log("test_loss", loss)
         self.log("test_mse", mse)
 
-    def full_traj(self, trajectory_duration, initial_condition):
-        initial_condition = initial_condition[np.newaxis, :]
+    def full_traj(self, nb_steps, init_pos):
+        initial_condition = init_pos[np.newaxis, :]
         print(f"initial_condition: {initial_condition}")
-        nb_steps = int(trajectory_duration // self.delta_t)
 
-        traj = [initial_condition]
-        t = [self.delta_t]
+        traj = [torch.tensor(initial_condition, dtype=torch.float)]
+        t = np.array([self.delta_t * step for step in range(nb_steps - 1)])
         with torch.no_grad():
-            for _ in range(nb_steps - 1):
-                new_coord = self(torch.tensor(traj[-1], dtype=torch.float)).numpy()
+            for _ in tqdm(range(nb_steps - 1), position=0, leave=True):
+                new_coord = self(traj[-1]).detach()
                 traj.append(new_coord)
-                t.append(t[-1] + self.delta_t)
-        traj = np.concatenate(traj, axis=0)
+                # t.append(t[-1] + self.delta_t)
+        # traj = np.concatenate(traj, axis=0)
+        traj = torch.stack(traj, axis=0)
+        traj = traj.numpy()
         print(f"traj: {traj.shape}")
-        t = np.array(t)
+        # t = np.array(t)
 
         return traj, t
 
