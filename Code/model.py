@@ -84,9 +84,12 @@ class DiscretModel(pl.LightningModule):
                 true_traj = w_t2
             true_traj = np.concatenate((true_traj, w_t2), axis=0)
             pred_traj = np.concatenate((pred_traj, w_t2_pred), axis=0)
-            # print(f"true_traj: {true_traj.shape}")
-            # print(f"pred_traj: {pred_traj.shape}")
+        print(f"true_traj: {true_traj.shape}")
+        print(f"pred_traj: {pred_traj.shape}")
         ax, fig = plot3D_traj(pred_traj, true_traj)
+        ax.scatter(true_traj[-1], marker="o", label="true")
+        ax.scatter(pred_traj[-1], marker="^", label="pred")
+        ax.legend()
         self.logger.experiment.log(
             {f"val_traj": wandb.Image(fig), "epoch": self.current_epoch}, commit=False
         )
