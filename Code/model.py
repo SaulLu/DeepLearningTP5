@@ -64,6 +64,7 @@ class DiscretModel(pl.LightningModule):
         for param in self.parameters():
             if len(param.data.shape) == 2:
                 print(f"param: {param.data[0][0]}")
+                break
         w_t1, w_t2 = batch
         # w_t1.requires_grad = True  # this is essential!
 
