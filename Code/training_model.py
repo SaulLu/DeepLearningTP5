@@ -21,10 +21,10 @@ def main(args):
     wandb_logger = WandbLogger(project=args.project)
 
     checkpoint_callback = ModelCheckpoint(
-        filename="{epoch}-{val_loss:.2f}-{other_metric:.2f}",
+        # filename="{epoch}-{val_loss:.2f}-{other_metric:.2f}",
         save_top_k=1,
         verbose=True,
-        monitor="val_mse",
+        monitor="train_mse",
         mode="min",
     )
 
@@ -58,7 +58,7 @@ def main(args):
     trainer = Trainer(
         gpus=args.gpus,
         logger=wandb_logger,
-        auto_lr_find=True,
+        # auto_lr_find=True,
         max_epochs=args.epochs,
         callbacks=[checkpoint_callback],
     )
