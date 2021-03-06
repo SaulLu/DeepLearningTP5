@@ -217,8 +217,9 @@ class ContinuousModel(pl.LightningModule):
             nn.ReLU(),
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
-            nn.Linear(hidden_size, out_size),
+            nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
+            nn.Linear(hidden_size, out_size),
         )
 
         self.ode_block = ODEBlock(self.forward, self.time_list, self.t1)
