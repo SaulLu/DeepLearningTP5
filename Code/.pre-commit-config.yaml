@@ -52,4 +52,4 @@ repos:
   rev: 3.8.4
   hooks:
   - id: flake8
-  args: [--config=setup.cfg]
+    args: [--config=setup.cfg]
