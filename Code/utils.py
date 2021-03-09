@@ -164,7 +164,7 @@ class Dynamics:
 
     def newton(self, f, jacob, x):
         tol = x
-        for compt in range(self.compt_max):
+        for compt in range(self.max_comp):
             x = x - solve(jacob(x), f(x))
             tol = norm(tol - x)
             if tol <= 1e-5:
