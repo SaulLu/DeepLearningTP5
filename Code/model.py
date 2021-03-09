@@ -128,7 +128,7 @@ class Model(pl.LightningModule):
         if return_numpy:
             t = np.array([self.delta_t * step for step in range(nb_steps - 1)])
             traj = traj.squeeze()
-            traj = traj.numpy()
+            traj = traj.cpu().numpy()
             return traj, t
 
         return traj
