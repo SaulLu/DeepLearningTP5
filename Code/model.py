@@ -143,11 +143,18 @@ class Model(pl.LightningModule):
         traj = [init_pos]
 
         with torch.no_grad():
-            for _ in tqdm(range(nb_steps - 1), position=0, leave=True):
-                new_coord = self(traj[-1]).detach()
-                # print(f"new_coord: {new_coord.shape}")
+            if return_numpy:
+                for _ in tqdm(range(nb_steps - 1), position=0, leave=True):
+                    new_coord = self(traj[-1]).detach()
+                    # print(f"new_coord: {new_coord.shape}")
 
-                traj.append(new_coord)
+                    traj.append(new_coord)
+            else:
+                for _ in range(nb_steps - 1):
+                    new_coord = self(traj[-1]).detach()
+                    # print(f"new_coord: {new_coord.shape}")
+
+                    traj.append(new_coord)
                 # t.append(t[-1] + self.delta_t)
         # traj = np.concatenate(traj, axis=0)
         # traj = torch.cat(traj, axis=1)
