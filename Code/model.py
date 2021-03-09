@@ -65,7 +65,7 @@ class Model(pl.LightningModule):
         # print(f"w_next: {w_next.shape}")
         # data.requires_grad = True  # this is essential!
         w_t2_pred = self(w_t2)
-        w_next_pred = self.full_traj(10, w_t1, return_numpy=False)
+        w_next_pred = self.full_traj(11, w_t1, return_numpy=False)
         mse_w_t2 = self.criterion(w_t2, w_t2_pred)  # + self.lambda_jr * self.reg(data, output)
         mse_w_next = self.criterion(w_next, w_next_pred)
         loss = mse_w_t2 + mse_w_next
@@ -81,7 +81,7 @@ class Model(pl.LightningModule):
         # print(f"w_next: {w_next.shape}")
         # data.requires_grad = True  # this is essential!
         w_t2_pred = self(w_t2)
-        w_next_pred = self.full_traj(10, w_t1, return_numpy=False)
+        w_next_pred = self.full_traj(11, w_t1, return_numpy=False)
         mse_w_t2 = self.criterion(w_t2, w_t2_pred)  # + self.lambda_jr * self.reg(data, output)
         mse_w_next = self.criterion(w_next, w_next_pred)
         loss = mse_w_t2 + mse_w_next
@@ -124,7 +124,6 @@ class Model(pl.LightningModule):
     def test_step(self, batch, batch_idx):
         w_t1, w_t2, w_next = batch
         # print(f"w_t2: {w_t2.shape}")
-        # print(f"w_next: {w_next.shape}")
         # data.requires_grad = True  # this is essential!
         w_t2_pred = self(w_t2)
         w_next_pred = self.full_traj(11, w_t1, return_numpy=False)
