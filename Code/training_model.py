@@ -57,7 +57,10 @@ def main(args):
         logger=wandb_logger,
         max_epochs=args.epochs,
         callbacks=[checkpoint_callback],
+        # auto_lr_find=True,
     )
+
+    # trainer.tune(model=model, datamodule=datamodule)
 
     trainer.fit(model=model, datamodule=datamodule)
     trainer.test(model=model, datamodule=datamodule)

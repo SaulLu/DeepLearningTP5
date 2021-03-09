@@ -32,6 +32,7 @@ class Statistics:
         self.fft_n = fft_n
         self.ts_n = ts_n
         self.axis_names = ["x", "y", "z"]
+        self.n_bins = 20
 
     def add_traj(self, traj_true, traj_pred, time_list, prefix=None):
         self.traj_true = traj_true
@@ -54,8 +55,8 @@ class Statistics:
         fig.set_figwidth(15)
         fig.set_figheight(5)
         for idx in range(3):
-            ax[idx].hist(self.traj_true[:, idx], label="true", alpha=0.8)
-            ax[idx].hist(self.traj_pred[:, idx], label="pred", alpha=0.8)
+            ax[idx].hist(self.traj_true[:, idx], label="true", alpha=0.8, bins=self.n_bins)
+            ax[idx].hist(self.traj_pred[:, idx], label="pred", alpha=0.8, bins=self.n_bins)
             ax[idx].legend()
             ax[idx].set_ylabel(self.axis_names[idx])
         self.log_plot(ax, fig, "PDF")
@@ -66,7 +67,7 @@ class Statistics:
         fig.set_figwidth(15)
         fig.set_figheight(15)
         for idx in range(3):
-            ax[idx].plot(self.time_list[:T], self.traj_true[:T, idx], "-.", label="true")
+            ax[idx].plot(self.time_list[:T], self.traj_true[:T, idx], "--", label="true")
             ax[idx].plot(self.time_list[:T], self.traj_pred[:T, idx], "-.", label="pred")
             ax[idx].legend()
             ax[idx].set_ylabel(self.axis_names[idx])
@@ -80,7 +81,7 @@ class Statistics:
         for idx in range(3):
             corr_true = np.correlate(self.traj_true[:T, idx], self.traj_true[:T, idx], "same")
             corr_pred = np.correlate(self.traj_pred[:T, idx], self.traj_pred[:T, idx], "same")
-            ax[idx].plot(self.time_list[:T], corr_true, "-.", label="true")
+            ax[idx].plot(self.time_list[:T], corr_true, "--", label="true")
             ax[idx].plot(self.time_list[:T], corr_pred, "-.", label="pred")
             ax[idx].legend()
             ax[idx].set_ylabel(self.axis_names[idx])
@@ -91,7 +92,7 @@ class Statistics:
         for idx in range(3):
             spec_true = self.compute_spec(self.traj_true[:, idx])
             spec_pred = self.compute_spec(self.traj_pred[:, idx])
-            ax[idx].plot(spec_true, "-.", label="true")
+            ax[idx].plot(spec_true, "--", label="true")
             ax[idx].plot(spec_pred, "-.", label="pred")
             ax[idx].legend()
             ax[idx].set_ylabel(self.axis_names[idx])
@@ -111,7 +112,7 @@ class Statistics:
             self.traj_true[:, 0],
             self.traj_true[:, 1],
             self.traj_true[:, 2],
-            "-.",
+            "--",
             label="true",
         )
         ax.plot(
