@@ -64,8 +64,11 @@ class Model(pl.LightningModule):
         # print(f"w_t2: {w_t2.shape}")
         # print(f"w_next: {w_next.shape}")
         # data.requires_grad = True  # this is essential!
-        w_t2_pred = self(w_t2)
+        w_t2_pred = self(w_t1)
         w_next_pred = self.full_traj(11, w_t1, return_numpy=False)
+        # print(f"w_t2_pred: {w_t2_pred}")
+        # import dll
+
         mse_w_t2 = self.criterion(w_t2, w_t2_pred)  # + self.lambda_jr * self.reg(data, output)
         mse_w_next = self.criterion(w_next, w_next_pred)
         loss = mse_w_t2 + mse_w_next
@@ -80,8 +83,9 @@ class Model(pl.LightningModule):
         # print(f"w_t2: {w_t2.shape}")
         # print(f"w_next: {w_next.shape}")
         # data.requires_grad = True  # this is essential!
-        w_t2_pred = self(w_t2)
+        w_t2_pred = self(w_t1)
         w_next_pred = self.full_traj(11, w_t1, return_numpy=False)
+        # print(f"w_t2_pred: {w_t2_pred}")
         mse_w_t2 = self.criterion(w_t2, w_t2_pred)  # + self.lambda_jr * self.reg(data, output)
         mse_w_next = self.criterion(w_next, w_next_pred)
         loss = mse_w_t2 + mse_w_next
@@ -91,8 +95,13 @@ class Model(pl.LightningModule):
         return {"w_next": w_next[0], "w_next_pred": w_next_pred[0]}
 
     def validation_epoch_end(self, outputs):
+
         pred_traj = outputs[-1]["w_next_pred"].cpu().numpy()
         true_traj = outputs[-1]["w_next"].cpu().numpy()
+        print(f"outputs[-1]['w_next_pred']: {outputs[-1]['w_next_pred'].shape}")
+        print(f"outputs[-1]['w_next']: {outputs[-1]['w_next'].shape}")
+        print(f"pred_traj: {pred_traj.shape}")
+        print(f"true_traj: {true_traj.shape}")
         # pred_traj = None
         # true_traj = None
         # for output in outputs:
@@ -107,15 +116,15 @@ class Model(pl.LightningModule):
         # print(f"true_traj: {true_traj.shape}")
         # print(f"pred_traj: {pred_traj.shape}")
         ax, fig = plot3D_traj(pred_traj, true_traj)
-        # ax.scatter(true_traj[-1][0], true_traj[-1][1], true_traj[-1][2], marker="o", label="true")
-        # ax.scatter(
-        #     pred_traj[-1][0],
-        #     pred_traj[-1][1],
-        #     pred_traj[-1][2],
-        #     marker="^",
-        #     color="r",
-        #     label="pred",
-        # )
+        ax.scatter(true_traj[0][0], true_traj[0][1], true_traj[0][2], marker="o", label="true")
+        ax.scatter(
+            pred_traj[0][0],
+            pred_traj[0][1],
+            pred_traj[0][2],
+            marker="^",
+            color="r",
+            label="pred",
+        )
         ax.legend()
         self.logger.experiment.log(
             {"val_traj": wandb.Image(fig), "epoch": self.current_epoch}, commit=False
@@ -125,7 +134,7 @@ class Model(pl.LightningModule):
         w_t1, w_t2, w_next = batch
         # print(f"w_t2: {w_t2.shape}")
         # data.requires_grad = True  # this is essential!
-        w_t2_pred = self(w_t2)
+        w_t2_pred = self(w_t1)
         w_next_pred = self.full_traj(11, w_t1, return_numpy=False)
         mse_w_t2 = self.criterion(w_t2, w_t2_pred)  # + self.lambda_jr * self.reg(data, output)
         mse_w_next = self.criterion(w_next, w_next_pred)
@@ -139,7 +148,7 @@ class Model(pl.LightningModule):
             if len(init_pos.shape) == 1:
                 init_pos = init_pos[np.newaxis, :]
             init_pos = torch.tensor(init_pos, dtype=torch.float)
-        # print(f"initial_condition: {init_pos.shape}")
+        # print(f"initial_condition: {init_pos}")
 
         traj = [init_pos]
 
@@ -153,8 +162,6 @@ class Model(pl.LightningModule):
             else:
                 for _ in range(nb_steps - 1):
                     new_coord = self(traj[-1])
-                    # print(f"new_coord: {new_coord.shape}")
-
                     traj.append(new_coord)
                 # t.append(t[-1] + self.delta_t)
         # traj = np.concatenate(traj, axis=0)
