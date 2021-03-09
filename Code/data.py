@@ -29,10 +29,12 @@ class RosslerAttractorDataset(Dataset):
         self.traj_n_2 = torch.tensor(self.traj.copy(), dtype=torch.float)
 
     def __getitem__(self, index):
-        return tuple([self.traj_n_1[index], self.traj_n_2[index + 1]])
+        return tuple(
+            [self.traj_n_1[index], self.traj_n_2[index + 1], self.traj_n_2[index + 1 : index + 11]]
+        )
 
     def __len__(self):
-        return self.traj_n_1.size(0) - 1  # Last item don't have true_y
+        return self.traj_n_1.size(0) - 10  # Last item don't have true_y
 
 
 class RosslerAttractorDataModule(pl.LightningDataModule):

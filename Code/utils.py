@@ -4,6 +4,7 @@ import torch
 from numpy.linalg import norm, qr, solve
 from scipy.fftpack import fft, fftshift
 from scipy.linalg import expm
+from tqdm import tqdm
 
 import wandb
 
@@ -148,7 +149,7 @@ class Dynamics:
         n = traj.shape[1]
         w = np.eye(n)
         rs = []
-        for i in range(self.max_it):
+        for i in tqdm(range(self.max_it), position=0, leave=True):
             jacob = jacobian(traj[i, :])
             if mode == "discrete":
                 w_next = np.dot(jacob, w)
@@ -164,7 +165,7 @@ class Dynamics:
 
     def newton(self, f, jacob, x):
         tol = x
-        for compt in range(self.max_comp):
+        for compt in tqdm(range(self.max_comp), position=0, leave=True):
             x = x - solve(jacob(x), f(x))
             tol = norm(tol - x)
             if tol <= 1e-5:
@@ -199,7 +200,9 @@ class Dynamics:
         )
 
         f_system = (
-            lambda w: (self.trained_model(torch.tensor(w, dtype=torch.float)).cpu().numpy() - w)
+            lambda w: (
+                self.trained_model(torch.tensor(w, dtype=torch.float)).detach().cpu().numpy() - w
+            )
             / self.delta_t
         )
 
