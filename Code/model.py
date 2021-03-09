@@ -153,7 +153,7 @@ class Model(pl.LightningModule):
                     traj.append(new_coord)
             else:
                 for _ in range(nb_steps - 1):
-                    new_coord = self(traj[-1]).detach()
+                    new_coord = self(traj[-1])
                     # print(f"new_coord: {new_coord.shape}")
 
                     traj.append(new_coord)
