@@ -80,10 +80,13 @@ class Model(pl.LightningModule):
 
     def validation_epoch_end(self, outputs):
         w_t1 = outputs[-1]["w_t1"][0]
-        pred_traj = self.full_traj(11, w_t1, return_numpy=True)
+        pred_traj, t = self.full_traj(11, w_t1, return_numpy=True)
+        # print(f"pred_traj: {pred_traj.shape}")
 
         # pred_traj = outputs[-1]["w_next_pred"].cpu().numpy()
-        true_traj = outputs[-1]["w_10"].cpu().numpy()
+        true_traj = outputs[-1]["w_10"].cpu().numpy()[0]
+        # print(f"true_traj: {true_traj.shape}")
+
         ax, fig = plot3D_traj(pred_traj, true_traj)
         ax.scatter(true_traj[0][0], true_traj[0][1], true_traj[0][2], marker="o", label="true")
         ax.scatter(
@@ -109,9 +112,9 @@ class Model(pl.LightningModule):
 
     def full_traj(self, nb_steps, init_pos, return_numpy=True):
         if isinstance(init_pos, np.ndarray):
-            if len(init_pos.shape) == 1:
-                init_pos = init_pos[np.newaxis, :]
             init_pos = torch.tensor(init_pos, dtype=torch.float)
+        if len(init_pos.shape) == 1:
+            init_pos = init_pos.unsqueeze(0)
 
         traj = [init_pos]
 
