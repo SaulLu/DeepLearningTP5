@@ -30,7 +30,7 @@ class RosslerAttractorDataset(Dataset):
 
     def __getitem__(self, index):
         return tuple(
-            [self.traj_n_1[index], self.traj_n_2[index + 1], self.traj_n_2[index + 1 : index + 11]]
+            [self.traj_n_1[index], self.traj_n_2[index + 1], self.traj_n_2[index : index + 11]]
         )
 
     def __len__(self):
