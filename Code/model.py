@@ -32,7 +32,7 @@ class Model(pl.LightningModule):
         self.mean = torch.tensor(mean, dtype=float)
         self.std = torch.tensor(std, dtype=float)
 
-        self.criterion_2 = SoftDTW(use_cuda=False, gamma=0.1)
+        self.criterion_2 = SoftDTW(use_cuda=True, gamma=0.1)
 
         self.reg = JacobianReg()
 
