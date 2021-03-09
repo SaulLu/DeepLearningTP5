@@ -54,8 +54,8 @@ class Model(pl.LightningModule):
             return out
 
     def configure_optimizers(self):
-        for param in self.parameters():
-            print(f"param: {param.shape}")
+        # for param in self.parameters():
+        #     print(f"param: {param.shape}")
         optim_adam = torch.optim.Adam(self.parameters(), lr=self.lr)
         return optim_adam
 
@@ -156,7 +156,7 @@ class Model(pl.LightningModule):
             t = np.array([self.delta_t * step for step in range(nb_steps - 1)])
             traj = traj.squeeze()
             traj = traj.numpy()
-            print(f"traj: {traj.shape}")
+            # print(f"traj: {traj.shape}")
             return traj, t
         # print(f"traj: {traj.shape}")
         # t = np.array(t)
