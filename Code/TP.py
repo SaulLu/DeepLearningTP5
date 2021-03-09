@@ -1,7 +1,5 @@
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
 from numpy.linalg import norm, qr, solve
 from scipy.linalg import expm
 

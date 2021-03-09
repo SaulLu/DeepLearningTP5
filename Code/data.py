@@ -1,8 +1,8 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import pytorch_lightning as pl
 import torch
 from torch.utils.data import DataLoader, Dataset
+
 from rossler_map import RosslerMap
 
 
@@ -54,11 +54,17 @@ class RosslerAttractorDataModule(pl.LightningDataModule):
         self.batch_size = batch_size
 
     def setup(self, stage=None):
-        self.dataset_train = RosslerAttractorDataset(self.delta_t, self.iterations[0], self.positions[0])
+        self.dataset_train = RosslerAttractorDataset(
+            self.delta_t, self.iterations[0], self.positions[0]
+        )
         mean = self.dataset_train.mean
         std = self.dataset_train.std
-        self.dataset_valid = RosslerAttractorDataset(self.delta_t, self.iterations[1], self.positions[1], mean, std)
-        self.dataset_test = RosslerAttractorDataset(self.delta_t, self.iterations[2], self.positions[2], mean, std)
+        self.dataset_valid = RosslerAttractorDataset(
+            self.delta_t, self.iterations[1], self.positions[1], mean, std
+        )
+        self.dataset_test = RosslerAttractorDataset(
+            self.delta_t, self.iterations[2], self.positions[2], mean, std
+        )
 
     def train_dataloader(self):
         return DataLoader(self.dataset_train, batch_size=self.batch_size, shuffle=True)

@@ -1,3 +1,5 @@
+exclude: ^Code/pytorch_softdtw_cuda/
+
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v3.3.0
@@ -52,4 +54,4 @@ repos:
   rev: 3.8.4
   hooks:
   - id: flake8
-    args: [--config=setup.cfg]
+    args: [--config=Code/setup.cfg]

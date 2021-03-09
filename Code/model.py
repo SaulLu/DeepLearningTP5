@@ -1,11 +1,12 @@
 import numpy as np
+import pytorch_lightning as pl
 import torch
 import torch.nn as nn
-import pytorch_lightning as pl
 from jacobian import JacobianReg
 from tqdm import tqdm
-from utils import plot3D_traj
+
 import wandb
+from utils import plot3D_traj
 
 
 class Model(pl.LightningModule):
@@ -60,17 +61,17 @@ class Model(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         data, target = batch
-        #data.requires_grad = True  # this is essential!
+        # data.requires_grad = True  # this is essential!
         output = self(data)
-        loss = self.criterion(output, target)   # + self.lambda_jr * self.reg(data, output)
-        
+        loss = self.criterion(output, target)  # + self.lambda_jr * self.reg(data, output)
+
         self.log("train_loss", loss, on_step=True, on_epoch=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
         data, target = batch
         output = self(data)
-        loss = self.criterion(output, target) 
+        loss = self.criterion(output, target)
         self.log("val_loss", loss, on_epoch=True)
         return {"w_t2": target, "w_t2_pred": output}
 
@@ -100,7 +101,7 @@ class Model(pl.LightningModule):
         )
         ax.legend()
         self.logger.experiment.log(
-            {f"val_traj": wandb.Image(fig), "epoch": self.current_epoch}, commit=False
+            {"val_traj": wandb.Image(fig), "epoch": self.current_epoch}, commit=False
         )
 
     def test_step(self, batch, batch_idx):
@@ -109,7 +110,7 @@ class Model(pl.LightningModule):
         loss = self.criterion(output, target)
 
         # self.log("test_loss", loss)
-        self.log("test_mse", mse)
+        self.log("test_mse", loss)
 
     def full_traj(self, nb_steps, init_pos):
         initial_condition = init_pos[np.newaxis, :]
