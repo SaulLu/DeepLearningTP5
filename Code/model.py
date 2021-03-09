@@ -6,7 +6,6 @@ from jacobian import JacobianReg
 from tqdm import tqdm
 
 import wandb
-from pytorch_softdtw_cuda.soft_dtw_cuda import SoftDTW
 from utils import plot3D_traj
 
 
@@ -14,6 +13,7 @@ class Model(pl.LightningModule):
     def __init__(
         self,
         criterion=nn.MSELoss(),
+        criterion_2=nn.MSELoss(),
         hidden_size: int = 50,
         lr: float = 1e-3,
         delta_t: float = 1e-3,
@@ -32,7 +32,7 @@ class Model(pl.LightningModule):
         self.mean = torch.tensor(mean, dtype=float)
         self.std = torch.tensor(std, dtype=float)
 
-        self.criterion_2 = SoftDTW(use_cuda=True, gamma=0.1)
+        self.criterion_2 = criterion_2
 
         self.reg = JacobianReg()
 

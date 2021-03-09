@@ -10,6 +10,7 @@ from pytorch_lightning.loggers import WandbLogger
 
 from data import RosslerAttractorDataModule
 from model import Model
+from pytorch_softdtw_cuda.soft_dtw_cuda import SoftDTW
 from rossler_map import RosslerMap
 from utils import Dynamics, Statistics, compute_traj
 
@@ -38,9 +39,12 @@ def main(args):
     datamodule.setup()
 
     criterion = nn.MSELoss(reduction="mean")
+    use_cuda = False if args.gpus is None else True
+    criterion_2 = SoftDTW(use_cuda=use_cuda, gamma=0.1)
 
     model = Model(
         criterion=criterion,
+        criterion_2=criterion_2,
         lr=args.lr,
         delta_t=args.delta_t,
         mean=datamodule.dataset_train.mean,
