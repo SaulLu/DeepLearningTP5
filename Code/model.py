@@ -71,8 +71,8 @@ class Model(pl.LightningModule):
         loss = mse_w_t2 + mse_w_next
 
         self.log("train_loss", loss, on_step=True, on_epoch=True)
-        self.log("train_mse_w_t2", mse_w_t2, on_epoch=True)
-        self.log("train_mse_w_next", mse_w_next, on_epoch=True)
+        # self.log("train_mse_w_t2", mse_w_t2, on_epoch=True)
+        # self.log("train_mse_w_next", mse_w_next, on_epoch=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
