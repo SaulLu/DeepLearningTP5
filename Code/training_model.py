@@ -21,7 +21,7 @@ def main(args):
     checkpoint_callback = ModelCheckpoint(
         save_top_k=1,
         verbose=True,
-        monitor="train_loss",
+        monitor="val_loss",
         mode="min",
     )
 
