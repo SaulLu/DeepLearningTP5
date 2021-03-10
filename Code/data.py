@@ -1,8 +1,8 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import pytorch_lightning as pl
 import torch
 from torch.utils.data import DataLoader, Dataset
-
 from rossler_map import RosslerMap
 
 
@@ -29,7 +29,9 @@ class RosslerAttractorDataset(Dataset):
         self.traj_n_2 = torch.tensor(self.traj.copy(), dtype=torch.float)
 
     def __getitem__(self, index):
-        return tuple([self.traj_n_1[index], self.traj_n_2[index + 1]])
+        w_1 = self.traj_n_1[index]
+        w_2 = self.traj_n_2[index + 1]
+        return tuple([w_1, w_2, w_2 - w_1])
 
     def __len__(self):
         return self.traj_n_1.size(0) - 1  # Last item don't have true_y
@@ -41,11 +43,11 @@ class RosslerAttractorDataModule(pl.LightningDataModule):
         n_iter_train: int = 2000000,
         n_iter_valid: int = 20000,
         n_iter_test: int = 2000000,
-        delta_t: float = 1e-2,
         init_pos_train=np.array([-5.75, -1.6, 0.02]),
-        init_pos_valid=np.array([0.01, 2.5, 3.07]),
-        init_pos_test=np.array([-5.70, -1.5, -0.02]),
+        init_pos_valid=np.array([-5.70, -1.5, -0.02]),
+        init_pos_test=np.array([0.01, 2.5, 3.07]),
         batch_size: int = 32,
+        delta_t: float = 1e-2,
     ):
         super().__init__()
         self.iterations = [n_iter_train, n_iter_valid, n_iter_test]
@@ -54,17 +56,11 @@ class RosslerAttractorDataModule(pl.LightningDataModule):
         self.batch_size = batch_size
 
     def setup(self, stage=None):
-        self.dataset_train = RosslerAttractorDataset(
-            self.delta_t, self.iterations[0], self.positions[0]
-        )
+        self.dataset_train = RosslerAttractorDataset(self.delta_t, self.iterations[0], self.positions[0])
         mean = self.dataset_train.mean
         std = self.dataset_train.std
-        self.dataset_valid = RosslerAttractorDataset(
-            self.delta_t, self.iterations[1], self.positions[1], mean, std
-        )
-        self.dataset_test = RosslerAttractorDataset(
-            self.delta_t, self.iterations[2], self.positions[2], mean, std
-        )
+        self.dataset_valid = RosslerAttractorDataset(self.delta_t, self.iterations[1], self.positions[1], mean, std)
+        self.dataset_test = RosslerAttractorDataset(self.delta_t, self.iterations[2], self.positions[2], mean, std)
 
     def train_dataloader(self):
         return DataLoader(self.dataset_train, batch_size=self.batch_size, shuffle=True)
