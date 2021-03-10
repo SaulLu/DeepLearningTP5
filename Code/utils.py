@@ -155,16 +155,17 @@ class Dynamics:
         rs = []
         for i in range(self.max_it):
             jacob = jacobian(traj[i, :])
+
             if mode == "discrete":
                 w_next = np.dot(jacob, w)
             elif mode == "continuous":
                 w_next = np.dot(expm(jacob * self.delta_t), w)
-        w_next, r_next = qr(w_next)
-        d = np.diag(np.sign(r_next.diagonal()))
-        w_next = np.dot(w_next, d)
-        r_next = np.dot(d, r_next.diagonal())
-        rs.append(r_next)
-        w = w_next
+            w_next, r_next = qr(w_next)
+            d = np.diag(np.sign(r_next.diagonal()))
+            w_next = np.dot(w_next, d)
+            r_next = np.dot(d, r_next.diagonal())
+            rs.append(r_next)
+            w = w_next
         return np.mean(np.log(rs), axis=0) / self.delta_t
 
     def newton(self, f, jacob, x):
