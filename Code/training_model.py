@@ -1,18 +1,28 @@
 import os
 from argparse import ArgumentParser
 from pathlib import Path
-
+import matplotlib.pyplot as plt
 import numpy as np
+import torch
 import torch.nn as nn
+from torch.nn import functional as F
+from data import RosslerAttractorDataModule
+from model import Model
+from utils import Statistics, Dynamics, compute_traj
+from rossler_map import RosslerMap
+from time_series import Rossler_model
+
+import wandb
+import pytorch_lightning as pl
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
-from data import RosslerAttractorDataModule
-from model import Model
-from rossler_map import RosslerMap
-from utils import Dynamics, Statistics, compute_traj
 
+class R2Loss(nn.Module):
+    def forward(self, y_pred, y):
+        var_y = torch.var(y, unbiased=False)
+        return 1.0 - F.mse_loss(y_pred, y, reduction="mean") / var_y
 
 def main(args):
     wandb_logger = WandbLogger(project=args.project)
@@ -38,6 +48,8 @@ def main(args):
     datamodule.setup()
 
     criterion = nn.MSELoss(reduction="mean")
+    #criterion = nn.L1Loss(reduction='mean')
+    #criterion = R2Loss()
 
     model = Model(
         criterion=criterion,
@@ -58,7 +70,7 @@ def main(args):
     trainer.fit(model=model, datamodule=datamodule)
     trainer.test(model=model, datamodule=datamodule)
 
-    # Tests
+    #### Tests ####
 
     TRAJECTORY_DUR = 1000
     nb_steps = int(TRAJECTORY_DUR // args.delta_t)
@@ -68,29 +80,25 @@ def main(args):
 
     trained_model = Model.load_from_checkpoint(checkpoint_path=checkpoint_path)
     trained_model.normalize = False
-
+    
     true_model = RosslerMap(delta_t=args.delta_t)
 
-    statstics_calculator = Statistics(wandb_logger)
+    statstics_calculator = Statistics(wandb_logger, args.delta_t)
     dynamics_calculator = Dynamics(wandb_logger, true_model, trained_model, nb_steps)
 
     # TRAIN set
-    traj_pred, traj_true, time_list = compute_traj(
-        trained_model, true_model, args.init_pos_train, nb_steps
-    )
+    traj_pred, traj_true, time_list = compute_traj(trained_model, true_model, args.init_pos_train, nb_steps)
     np.save(os.path.join(save_dir_path, "traj_pred_train.npy"), traj_pred)
     np.save(os.path.join(save_dir_path, "traj_true_train.npy"), traj_true)
     np.save(os.path.join(save_dir_path, "time_list_train.npy"), time_list)
 
     statstics_calculator.add_traj(traj_true, traj_pred, time_list, prefix="train ")
-    statstics_calculator.plot_all()
+    statstics_calculator.plot_all()    
     dynamics_calculator.add_traj(traj_true, traj_pred)
     dynamics_calculator.plot_all()
 
     # VAL set
-    traj_pred, traj_true, time_list = compute_traj(
-        trained_model, true_model, args.init_pos_valid, nb_steps
-    )
+    traj_pred, traj_true, time_list = compute_traj(trained_model, true_model, args.init_pos_valid, nb_steps)
     np.save(os.path.join(save_dir_path, "traj_pred_valid.npy"), traj_pred)
     np.save(os.path.join(save_dir_path, "traj_true_valid.npy"), traj_true)
     np.save(os.path.join(save_dir_path, "time_list_valid.npy"), time_list)
@@ -99,11 +107,10 @@ def main(args):
     statstics_calculator.plot_all()
     dynamics_calculator.add_traj(traj_true, traj_pred)
     dynamics_calculator.plot_all()
-
+    
+    
     # TEST set
-    traj_pred, traj_true, time_list = compute_traj(
-        trained_model, true_model, args.init_pos_test, nb_steps
-    )
+    traj_pred, traj_true, time_list = compute_traj(trained_model, true_model, args.init_pos_test, nb_steps)
     np.save(os.path.join(save_dir_path, "traj_pred_test.npy"), traj_pred)
     np.save(os.path.join(save_dir_path, "traj_true_test.npy"), traj_true)
     np.save(os.path.join(save_dir_path, "time_list_test.npy"), time_list)
@@ -113,7 +120,6 @@ def main(args):
     dynamics_calculator.add_traj(traj_true, traj_pred)
     dynamics_calculator.plot_all()
 
-
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--n_iter_train", type=int, default=1000)
@@ -122,12 +128,12 @@ if __name__ == "__main__":
     parser.add_argument("--init_pos_train", nargs="+", type=float, default=[-5.75, -1.6, 0.02])
     parser.add_argument("--init_pos_valid", nargs="+", type=float, default=[-5.70, -1.5, -0.02])
     parser.add_argument("--init_pos_test", nargs="+", type=float, default=[0.01, 2.5, 3.07])
-    parser.add_argument("--delta_t", type=float, default=1e-3)
-    parser.add_argument("--batch_size", type=int, default=1000)
+    parser.add_argument("--delta_t", type=float, default=1e-2)
+    parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--epochs", type=int, default=10)
-    parser.add_argument("--lr", type=float, default=1e-2)
+    parser.add_argument("--lr", type=float, default=1e-6)
     parser.add_argument("--gpus", default=None)
-    parser.add_argument("--project", type=str, default="rossler")
+    parser.add_argument("--project", type=str, default="test_rossler")
 
     args = parser.parse_args()
     main(args)
