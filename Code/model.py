@@ -1,12 +1,11 @@
 import numpy as np
-import pytorch_lightning as pl
 import torch
 import torch.nn as nn
-from jacobian import JacobianReg
+import pytorch_lightning as pl
+#from jacobian import JacobianReg
 from tqdm import tqdm
-
-import wandb
 from utils import plot3D_traj
+import wandb
 
 
 class Model(pl.LightningModule):
@@ -15,23 +14,24 @@ class Model(pl.LightningModule):
         criterion=nn.MSELoss(),
         hidden_size: int = 50,
         lr: float = 1e-3,
-        delta_t: float = 1e-3,
-        lambda_jr=0.01,  # lambda jacobian regularisation
+        delta_t: float = 1e-2,
+        lambda_reg=20,  # lambda jacobian regularisation
         mean=None,
         std=None,
     ):
         super().__init__()
         self.save_hyperparameters()
         self.criterion = criterion
+        self.criterion_velocity = nn.L1Loss(reduction='mean')
         self.hidden_size = hidden_size
         self.lr = lr
-        self.lambda_jr = lambda_jr
+        self.lambda_reg = lambda_reg
         self.delta_t = delta_t
         self.normalize = True
         self.mean = torch.tensor(mean, dtype=float)
         self.std = torch.tensor(std, dtype=float)
 
-        self.reg = JacobianReg()
+        #self.reg = JacobianReg()
 
         self.layers = nn.Sequential(
             nn.Linear(3, hidden_size),
@@ -57,21 +57,42 @@ class Model(pl.LightningModule):
         for param in self.parameters():
             print(f"param: {param.shape}")
         optim_adam = torch.optim.Adam(self.parameters(), lr=self.lr)
-        return optim_adam
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optim_adam,
+            mode='min',
+            factor=0.1,
+            patience=5,
+            verbose=True,
+            cooldown=5,
+            min_lr=1e-8,
+        )
+        return (
+          [optim_adam],  
+          [
+            {
+                'scheduler': scheduler,
+                'interval': 'epoch',
+                'frequency': 1,
+                'monitor': 'train_loss',
+            }
+          ]
+        )
 
     def training_step(self, batch, batch_idx):
-        data, target = batch
-        # data.requires_grad = True  # this is essential!
+        data, target, velocity = batch
+        #data.requires_grad = True  # this is essential!
         output = self(data)
-        loss = self.criterion(output, target)  # + self.lambda_jr * self.reg(data, output)
-
+        velocity_pred = output - data
+        loss = self.criterion(output, target) + self.lambda_reg * self.criterion_velocity(velocity_pred, velocity)   # + self.lambda_jr * self.reg(data, output)
+        
         self.log("train_loss", loss, on_step=True, on_epoch=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        data, target = batch
+        data, target, velocity = batch
         output = self(data)
-        loss = self.criterion(output, target)
+        velocity_pred = output - data
+        loss = self.criterion(output, target)  #+ self.lambda_reg * self.criterion_velocity(velocity_pred, velocity) 
         self.log("val_loss", loss, on_epoch=True)
         return {"w_t2": target, "w_t2_pred": output}
 
@@ -87,30 +108,17 @@ class Model(pl.LightningModule):
                 true_traj = w_t2
             true_traj = np.concatenate((true_traj, w_t2), axis=0)
             pred_traj = np.concatenate((pred_traj, w_t2_pred), axis=0)
-        print(f"true_traj: {true_traj.shape}")
-        print(f"pred_traj: {pred_traj.shape}")
         ax, fig = plot3D_traj(pred_traj, true_traj)
-        ax.scatter(true_traj[-1][0], true_traj[-1][1], true_traj[-1][2], marker="o", label="true")
-        ax.scatter(
-            pred_traj[-1][0],
-            pred_traj[-1][1],
-            pred_traj[-1][2],
-            marker="^",
-            color="r",
-            label="pred",
-        )
-        ax.legend()
         self.logger.experiment.log(
-            {"val_traj": wandb.Image(fig), "epoch": self.current_epoch}, commit=False
+            {f"val_traj": wandb.Image(fig), "epoch": self.current_epoch}, commit=True
         )
 
     def test_step(self, batch, batch_idx):
-        data, target = batch
+        data, target, velocity = batch
         output = self(data)
-        loss = self.criterion(output, target)
-
-        # self.log("test_loss", loss)
-        self.log("test_mse", loss)
+        velocity_pred = output - data
+        loss = self.criterion(output, target) #+ self.lambda_reg * self.criterion_velocity(velocity_pred, velocity) 
+        self.log("test_loss", loss)
 
     def full_traj(self, nb_steps, init_pos):
         initial_condition = init_pos[np.newaxis, :]
@@ -128,7 +136,6 @@ class Model(pl.LightningModule):
         traj = traj.numpy()
         print(f"traj: {traj.shape}")
         # t = np.array(t)
-
         return traj, t
 
     def jacobian(self, w):
