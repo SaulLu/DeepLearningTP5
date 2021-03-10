@@ -95,17 +95,17 @@ def main(args):
     dynamics_calculator.plot_all()
 
     # VAL set
-    traj_pred, traj_true, time_list = compute_traj(
-        trained_model, true_model, args.init_pos_valid, nb_steps
-    )
-    np.save(os.path.join(save_dir_path, "traj_pred_valid.npy"), traj_pred)
-    np.save(os.path.join(save_dir_path, "traj_true_valid.npy"), traj_true)
-    np.save(os.path.join(save_dir_path, "time_list_valid.npy"), time_list)
+    # traj_pred, traj_true, time_list = compute_traj(
+    #     trained_model, true_model, args.init_pos_valid, nb_steps
+    # )
+    # np.save(os.path.join(save_dir_path, "traj_pred_valid.npy"), traj_pred)
+    # np.save(os.path.join(save_dir_path, "traj_true_valid.npy"), traj_true)
+    # np.save(os.path.join(save_dir_path, "time_list_valid.npy"), time_list)
 
-    statstics_calculator.add_traj(traj_true, traj_pred, time_list, prefix="valid ")
-    statstics_calculator.plot_all()
-    dynamics_calculator.add_traj(traj_true, traj_pred)
-    dynamics_calculator.plot_all()
+    # statstics_calculator.add_traj(traj_true, traj_pred, time_list, prefix="valid ")
+    # statstics_calculator.plot_all()
+    # dynamics_calculator.add_traj(traj_true, traj_pred)
+    # dynamics_calculator.plot_all()
 
     # TEST set
     traj_pred, traj_true, time_list = compute_traj(
