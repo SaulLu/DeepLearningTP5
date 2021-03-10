@@ -88,7 +88,7 @@ def compute_pred_true_lyaponov(
     mode="discrete",
 ):
     if mode in ["discrete", "continuous"]:
-        print(f"Pred")
+        print("Pred")
         lyap_pred = lyapunov_exponent(
             traj_pred,
             trained_model.jacobian,
@@ -96,7 +96,7 @@ def compute_pred_true_lyaponov(
             delta_t=trained_model.delta_t,
             mode=mode,
         )
-        print(f"True")
+        print("True")
         lyap_true = lyapunov_exponent(
             traj_true,
             rossler_map_true.jacobian,
