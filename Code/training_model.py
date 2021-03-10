@@ -10,7 +10,8 @@ from pytorch_lightning.loggers import WandbLogger
 
 from data import RosslerAttractorDataModule
 from model import Model
-from pytorch_softdtw_cuda.soft_dtw_cuda import SoftDTW
+
+# from pytorch_softdtw_cuda.soft_dtw_cuda import SoftDTW
 from rossler_map import RosslerMap
 from utils import Dynamics, Statistics, compute_traj
 
@@ -38,19 +39,25 @@ def main(args):
 
     datamodule.setup()
 
-    criterion = nn.L1Loss(reduction="mean")
-    use_cuda = False if args.gpus is None else True
-    criterion_2 = SoftDTW(use_cuda=use_cuda, gamma=0.1, normalize=True)
+    # criterion = nn.L1Loss(reduction="mean")
+    # use_cuda = False if args.gpus is None else True
+    # criterion_2 = SoftDTW(use_cuda=use_cuda, gamma=0.1, normalize=True)
+    criterion_2 = nn.L1Loss()
 
-    model = Model(
-        criterion=criterion,
-        criterion_2=criterion_2,
-        lr=args.lr,
-        delta_t=args.delta_t,
-        mean=datamodule.dataset_train.mean,
-        std=datamodule.dataset_train.std,
-        hidden_size=15,
-    )
+    checkpoint_path = "Data/checkpoints/model_dtw.ckpt"
+
+    model = Model.load_from_checkpoint(checkpoint_path=checkpoint_path)
+    model.criterion_2 = criterion_2
+
+    # model = Model(
+    #     criterion=criterion,
+    #     criterion_2=criterion_2,
+    #     lr=args.lr,
+    #     delta_t=args.delta_t,
+    #     mean=datamodule.dataset_train.mean,
+    #     std=datamodule.dataset_train.std,
+    #     hidden_size=15,
+    # )
 
     trainer = Trainer(
         gpus=args.gpus,
@@ -127,7 +134,7 @@ if __name__ == "__main__":
     parser.add_argument("--n_iter_valid", type=int, default=1000)
     parser.add_argument("--n_iter_test", type=int, default=1000)
     parser.add_argument("--init_pos_train", nargs="+", type=float, default=[-5.75, -1.6, 0.02])
-    parser.add_argument("--init_pos_valid", nargs="+", type=float, default=[-5.70, -1.5, -0.02])
+    parser.add_argument("--init_pos_valid", nargs="+", type=float, default=[0.9, -0.6, 0.028])
     parser.add_argument("--init_pos_test", nargs="+", type=float, default=[0.01, 2.5, 3.07])
     parser.add_argument("--delta_t", type=float, default=1e-3)
     parser.add_argument("--batch_size", type=int, default=1000)
