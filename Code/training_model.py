@@ -38,7 +38,7 @@ def main(args):
 
     datamodule.setup()
 
-    criterion = nn.MSELoss(reduction="mean")
+    criterion = nn.L1Loss(reduction="mean")
     use_cuda = False if args.gpus is None else True
     criterion_2 = SoftDTW(use_cuda=use_cuda, gamma=0.1, normalize=True)
 

@@ -183,4 +183,7 @@ class Model(pl.LightningModule):
         return traj
 
     def jacobian(self, w):
-        return torch.autograd.functional.jacobian(self, torch.tensor(w, dtype=torch.float))
+        if torch.is_tensor(w):
+            return torch.autograd.functional.jacobian(self, w)
+        else:
+            return torch.autograd.functional.jacobian(self, torch.tensor(w, dtype=torch.float))

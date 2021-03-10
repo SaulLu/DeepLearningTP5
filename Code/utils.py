@@ -61,7 +61,7 @@ class Statistics:
             ax[idx].set_ylabel(self.axis_names[idx])
         self.log_plot(ax, fig, "PDF")
 
-    def plot1D_traj(self):
+    def plot1D_traj_start(self):
         T = self.ts_n
         fig, ax = plt.subplots(3, 1)
         fig.set_figwidth(15)
@@ -71,7 +71,19 @@ class Statistics:
             ax[idx].plot(self.time_list[:T], self.traj_pred[:T, idx], "-.", label="pred")
             ax[idx].legend()
             ax[idx].set_ylabel(self.axis_names[idx])
-        self.log_plot(ax, fig, "1D Trajectories")
+        self.log_plot(ax, fig, "1D Trajectories Start")
+
+    def plot1D_traj_end(self):
+        T = self.ts_n
+        fig, ax = plt.subplots(3, 1)
+        fig.set_figwidth(15)
+        fig.set_figheight(15)
+        for idx in range(3):
+            ax[idx].plot(self.time_list[-T:], self.traj_true[-T:, idx], "--", label="true")
+            ax[idx].plot(self.time_list[-T:], self.traj_pred[-T:, idx], "-.", label="pred")
+            ax[idx].legend()
+            ax[idx].set_ylabel(self.axis_names[idx])
+        self.log_plot(ax, fig, "1D Trajectories End")
 
     def plot_corr(self):
         T = self.ts_n
@@ -127,7 +139,8 @@ class Statistics:
 
     def plot_all(self):
         self.plot3D_traj()
-        self.plot1D_traj()
+        self.plot1D_traj_start()
+        self.plot1D_traj_end()
         self.plot_pdf()
         self.plot_corr()
         self.plot_fft()
