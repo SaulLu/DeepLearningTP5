@@ -39,25 +39,25 @@ def main(args):
 
     datamodule.setup()
 
-    # criterion = nn.L1Loss(reduction="mean")
+    criterion = nn.L1Loss(reduction="mean")
     # use_cuda = False if args.gpus is None else True
     # criterion_2 = SoftDTW(use_cuda=use_cuda, gamma=0.1, normalize=True)
-    criterion_2 = nn.L1Loss()
+    criterion_2 = nn.L1Loss(reduction="mean")
 
-    checkpoint_path = "Data/checkpoints/model_dtw.ckpt"
+    # checkpoint_path = "Data/checkpoints/model_dtw.ckpt"
 
-    model = Model.load_from_checkpoint(checkpoint_path=checkpoint_path)
-    model.criterion_2 = criterion_2
+    # model = Model.load_from_checkpoint(checkpoint_path=checkpoint_path)
+    # model.criterion_2 = criterion_2
 
-    # model = Model(
-    #     criterion=criterion,
-    #     criterion_2=criterion_2,
-    #     lr=args.lr,
-    #     delta_t=args.delta_t,
-    #     mean=datamodule.dataset_train.mean,
-    #     std=datamodule.dataset_train.std,
-    #     hidden_size=15,
-    # )
+    model = Model(
+        criterion=criterion,
+        criterion_2=criterion_2,
+        lr=args.lr,
+        delta_t=args.delta_t,
+        mean=datamodule.dataset_train.mean,
+        std=datamodule.dataset_train.std,
+        hidden_size=15,
+    )
 
     trainer = Trainer(
         gpus=args.gpus,

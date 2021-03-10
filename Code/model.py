@@ -73,8 +73,8 @@ class Model(pl.LightningModule):
         # import dll
 
         mse_w_t2 = self.criterion(w_t2, w_t2_pred)  # + self.lambda_jr * self.reg(data, output)
-        mse_w_next = self.criterion_2(w_next, w_next_pred).sum() / w_next.shape[0]
-        loss = mse_w_t2 + 1 / w_next.shape[1] * mse_w_next
+        mse_w_next = self.criterion_2(w_next, w_next_pred)
+        loss = mse_w_t2 + mse_w_next
 
         self.log("train_loss", loss, on_step=True, on_epoch=True)
         # self.log("train_mse_w_t2", mse_w_t2, on_epoch=True)
@@ -90,9 +90,8 @@ class Model(pl.LightningModule):
         w_next_pred = self.full_traj(11, w_t1, return_numpy=False)
         # print(f"w_t2_pred: {w_t2_pred}")
         mse_w_t2 = self.criterion(w_t2, w_t2_pred)  # + self.lambda_jr * self.reg(data, output)
-        mse_w_next = self.criterion_2(w_next, w_next_pred).sum() / w_next.shape[0]
-        # print(f"w_next.shape[0]: {w_next.shape[0]}")
-        loss = mse_w_t2 + 1 / w_next.shape[1] * mse_w_next
+        mse_w_next = self.criterion_2(w_next, w_next_pred)
+        loss = mse_w_t2 + mse_w_next
         self.log("val_loss", loss, on_epoch=True)
         self.log("val_mse_w_t2", mse_w_t2, on_epoch=True)
         self.log("val_mse_w_next", mse_w_next, on_epoch=True)
@@ -141,8 +140,8 @@ class Model(pl.LightningModule):
         w_t2_pred = self(w_t1)
         w_next_pred = self.full_traj(11, w_t1, return_numpy=False)
         mse_w_t2 = self.criterion(w_t2, w_t2_pred)  # + self.lambda_jr * self.reg(data, output)
-        mse_w_next = self.criterion_2(w_next, w_next_pred).sum() / w_next.shape[0]
-        loss = mse_w_t2 + 1 / w_next.shape[1] * mse_w_next
+        mse_w_next = self.criterion_2(w_next, w_next_pred)
+        loss = mse_w_t2 + mse_w_next
 
         # self.log("test_loss", loss)
         self.log("test_mse", loss)
