@@ -8,10 +8,9 @@ class RosslerMap:
     With a=0.2, b=0.2, and c=5.7
     """
 
-    def __init__(_, a=0.2, b=0.2, c=5.7, delta_t=1e-3, mode="discrete"):
+    def __init__(_, a=0.2, b=0.2, c=5.7, delta_t=1e-2, mode="discrete"):
         _.a, _.b, _.c = a, b, c
         _.delta_t = delta_t
-        _.mode = mode
 
     def v_eq(_, t=None, v=None):
         x, y, z = v[0], v[1], v[2]
@@ -23,8 +22,6 @@ class RosslerMap:
     def jacobian(_, v):
         x, z = v[0], v[2]
         res = np.array([[0, -1, -1], [1, _.a, 0], [z, 0, x - _.c]])
-        # if (_.mode =="discrete"):
-        #    res = np.exp(_.delta_t * res) + _.delta_t * res
         return res
 
     def full_traj(_, nb_steps, init_pos):
