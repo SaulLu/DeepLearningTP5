@@ -85,6 +85,7 @@ def main(args):
     traj_pred, traj_true, time_list = compute_traj(
         trained_model, true_model, args.init_pos_train, nb_steps
     )
+
     np.save(os.path.join(save_dir_path, "traj_pred_train.npy"), traj_pred)
     np.save(os.path.join(save_dir_path, "traj_true_train.npy"), traj_true)
     np.save(os.path.join(save_dir_path, "time_list_train.npy"), time_list)
