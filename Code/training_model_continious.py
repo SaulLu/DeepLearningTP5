@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from statistics import plot3D_traj
+from statistics_2 import plot3D_traj
 
 import matplotlib.pyplot as plt
 import numpy as np

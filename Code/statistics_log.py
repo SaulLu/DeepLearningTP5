@@ -1,4 +1,4 @@
-from statistics import (
+from statistics_2 import (
     lyapunov_exponent,
     newton,
     plot3D_traj,
@@ -88,6 +88,7 @@ def compute_pred_true_lyaponov(
     mode="discrete",
 ):
     if mode in ["discrete", "continuous"]:
+        print(f"Pred")
         lyap_pred = lyapunov_exponent(
             traj_pred,
             trained_model.jacobian,
@@ -95,7 +96,7 @@ def compute_pred_true_lyaponov(
             delta_t=trained_model.delta_t,
             mode=mode,
         )
-
+        print(f"True")
         lyap_true = lyapunov_exponent(
             traj_true,
             rossler_map_true.jacobian,

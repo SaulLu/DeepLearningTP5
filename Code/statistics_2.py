@@ -65,7 +65,11 @@ def autocorrelation():
 
 
 def lyapunov_exponent(traj, jacobian, max_it=1000, delta_t=1e-3, mode="discrete"):
-
+    print(f"mode: {mode}")
+    print(f"traj: {traj.shape}")
+    print(f"max_it: {max_it}")
+    print(f"delta_t: {delta_t}")
+    print(f"jacobian: {jacobian}")
     n = traj.shape[1]
     w = np.eye(n)
     rs = []
@@ -95,7 +99,7 @@ def lyapunov_exponent(traj, jacobian, max_it=1000, delta_t=1e-3, mode="discrete"
         rs.append(r_next)
         w = w_next
         if i // (max_it / 100) > chk:
-            print(i // (max_it / 100))
+            # print(i // (max_it / 100))
             chk += 1
 
     return np.mean(np.log(rs), axis=0) / delta_t

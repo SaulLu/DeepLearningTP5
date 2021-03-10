@@ -11,14 +11,16 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
 import wandb
-from data import \
-    DiscreteRosslerAttractorDataModule as RosslerAttractorDataModule
+from data import DiscreteRosslerAttractorDataModule as RosslerAttractorDataModule
 from model import DiscretModel as Model
 from pytorch_softdtw_cuda.soft_dtw_cuda import SoftDTW
 from rossler_map import RosslerMap
-from statistics_log import (compute_pred_true_equilibrium_state,
-                            compute_pred_true_lyaponov, compute_pred_true_traj,
-                            plot_pred_true_trajectories)
+from statistics_log import (
+    compute_pred_true_equilibrium_state,
+    compute_pred_true_lyaponov,
+    compute_pred_true_traj,
+    plot_pred_true_trajectories,
+)
 from time_series import Rossler_model
 
 
@@ -80,9 +82,11 @@ def main(args):
     trainer.test(model=model, datamodule=datamodule)
 
     #### Tests ####
-
+    print("*** Begin Test ***")
     TRAJECTORY_DUR = 1000
     nb_steps = int(TRAJECTORY_DUR // args.delta_t)
+
+    print(f"nb_steps: {nb_steps}")
 
     checkpoint_path = Path(checkpoint_callback.best_model_path)
     save_dir_path = checkpoint_path.parent
@@ -92,7 +96,12 @@ def main(args):
 
     rossler_map_true = RosslerMap(delta_t=args.delta_t)
 
+    print(f"trained model: {trained_model}")
+    print(f"true model: {rossler_map_true}")
+
     # Train set
+    print("*** Begin computation traj ***")
+    print("*** Begin computation traj ***")
     traj_pred, traj_true, time_list = compute_pred_true_traj(
         trained_model, rossler_map_true, args.init_pos_train, nb_steps
     )

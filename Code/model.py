@@ -1,4 +1,4 @@
-from statistics import plot3D_traj
+# from statistics_2 import plot3D_traj
 
 import numpy as np
 import pytorch_lightning as pl
@@ -103,34 +103,34 @@ class DiscretModel(pl.LightningModule):
         self.log("val_mse", mse, on_epoch=True)
         return {"w_t2": w_t2, "w_t2_pred": w_t2_pred}
 
-    def validation_epoch_end(self, outputs):
-        pred_traj = None
-        true_traj = None
-        for output in outputs:
-            w_t2_pred = output["w_t2_pred"].cpu().numpy()
-            w_t2 = output["w_t2"].cpu().numpy()
+    # def validation_epoch_end(self, outputs):
+    #     pred_traj = None
+    #     true_traj = None
+    #     for output in outputs:
+    #         w_t2_pred = output["w_t2_pred"].cpu().numpy()
+    #         w_t2 = output["w_t2"].cpu().numpy()
 
-            if pred_traj is None:
-                pred_traj = w_t2_pred
-                true_traj = w_t2
-            true_traj = np.concatenate((true_traj, w_t2), axis=0)
-            pred_traj = np.concatenate((pred_traj, w_t2_pred), axis=0)
-        print(f"true_traj: {true_traj.shape}")
-        print(f"pred_traj: {pred_traj.shape}")
-        ax, fig = plot3D_traj(pred_traj, true_traj)
-        ax.scatter(true_traj[-1][0], true_traj[-1][1], true_traj[-1][2], marker="o", label="true")
-        ax.scatter(
-            pred_traj[-1][0],
-            pred_traj[-1][1],
-            pred_traj[-1][2],
-            marker="^",
-            color="r",
-            label="pred",
-        )
-        ax.legend()
-        self.logger.experiment.log(
-            {f"val_traj": wandb.Image(fig), "epoch": self.current_epoch}, commit=False
-        )
+    #         if pred_traj is None:
+    #             pred_traj = w_t2_pred
+    #             true_traj = w_t2
+    #         true_traj = np.concatenate((true_traj, w_t2), axis=0)
+    #         pred_traj = np.concatenate((pred_traj, w_t2_pred), axis=0)
+    #     print(f"true_traj: {true_traj.shape}")
+    #     print(f"pred_traj: {pred_traj.shape}")
+    #     ax, fig = plot3D_traj(pred_traj, true_traj)
+    #     ax.scatter(true_traj[-1][0], true_traj[-1][1], true_traj[-1][2], marker="o", label="true")
+    #     ax.scatter(
+    #         pred_traj[-1][0],
+    #         pred_traj[-1][1],
+    #         pred_traj[-1][2],
+    #         marker="^",
+    #         color="r",
+    #         label="pred",
+    #     )
+    #     ax.legend()
+    #     self.logger.experiment.log(
+    #         {f"val_traj": wandb.Image(fig), "epoch": self.current_epoch}, commit=False
+    #     )
 
     def test_step(self, batch, batch_idx):
         data, target = batch
