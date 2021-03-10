@@ -59,9 +59,12 @@ def main(args):
     trainer.test(model=model, datamodule=datamodule)
 
     # Tests
+    print("*** Begin Test ***")
 
     TRAJECTORY_DUR = 1000
     nb_steps = int(TRAJECTORY_DUR // args.delta_t)
+
+    print(f"nb_steps: {nb_steps}")
 
     checkpoint_path = Path(checkpoint_callback.best_model_path)
     save_dir_path = checkpoint_path.parent
@@ -71,10 +74,15 @@ def main(args):
 
     true_model = RosslerMap(delta_t=args.delta_t)
 
+    print(f"trained model: {trained_model}")
+    print(f"true model: {true_model}")
+
     statstics_calculator = Statistics(wandb_logger)
     dynamics_calculator = Dynamics(wandb_logger, true_model, trained_model, nb_steps)
 
     # TRAIN set
+    print("*** Begin computation traj ***")
+    print("*** Begin computation traj ***")
     traj_pred, traj_true, time_list = compute_traj(
         trained_model, true_model, args.init_pos_train, nb_steps
     )

@@ -145,6 +145,11 @@ class Dynamics:
         self.traj_pred = traj_pred
 
     def lyapunov_exponent(self, traj, jacobian, mode="discrete"):
+        print(f"mode: {mode}")
+        print(f"traj: {traj.shape}")
+        print(f"max_it: {self.max_it}")
+        print(f"delta_t: {self.delta_t}")
+        print(f"jacobian: {jacobian}")
         n = traj.shape[1]
         w = np.eye(n)
         rs = []
@@ -172,9 +177,13 @@ class Dynamics:
         return x
 
     def compute_lyaponov(self):
+
+        print("Pred")
         lyap_pred = self.lyapunov_exponent(
             self.traj_pred, self.trained_model.jacobian, mode="discrete"
         )
+
+        print("True")
         lyap_true = self.lyapunov_exponent(
             self.traj_true, self.true_model.jacobian, mode="continuous"
         )
