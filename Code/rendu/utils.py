@@ -195,14 +195,18 @@ class Dynamics:
         return x
 
     def compute_lyaponov(self):
+        print("Start computation of Lyaponuv exponent on the predicted trajectory...")
         lyap_pred = self.lyapunov_exponent(
             self.traj_pred, self.trained_model.jacobian, mode="discrete"
         )
+        print("Start computation of Lyaponuv exponent on the true trajectory...")
         lyap_true = self.lyapunov_exponent(
             self.traj_true, self.true_model.jacobian, mode="continuous"
         )
         lyap_error = np.abs(lyap_pred - lyap_true)
-        print(f"lyap_true: {lyap_true}," f"lyap_pred: {lyap_pred}," f"lyap_error : {lyap_error}")
+        print(
+            f"lyap_true: {lyap_true},\n" f"lyap_pred: {lyap_pred},\n" f"lyap_error : {lyap_error}"
+        )
         if self.wandb_logger is not None:
             self.wandb_logger.experiment.log(
                 {"lyap_pred": lyap_pred, "lyap_true": lyap_true, "lyap_error": lyap_error}
@@ -227,14 +231,14 @@ class Dynamics:
             )
             / self.delta_t
         )
-
+        print("Start computation of one of the equilibrum point on the predicted trajectory...")
         fix_point_pred = self.newton(f_system, jacobian_system, init_pos)
         fix_point_true = self.true_model.equilibrium()
         fix_point_error = np.abs(fix_point_pred - fix_point_true)
 
         print(
-            f"fix_point_true: {fix_point_true},"
-            f"fix_point_pred: {fix_point_pred},"
+            f"fix_point_true: {fix_point_true},\n"
+            f"fix_point_pred: {fix_point_pred},\n"
             f"fix_point_error : {fix_point_error}"
         )
 
