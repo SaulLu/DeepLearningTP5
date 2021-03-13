@@ -30,7 +30,7 @@ def compute_traj(trained_model, rossler_map_true, initial_condition, nb_step):
 
 
 class Statistics:
-    def __init__(self, wandb_logger, ts_n=10000, fft_n=1000, n_bins=50):
+    def __init__(self, wandb_logger, ts_n=10000, fft_n=1000, n_bins=150):
         self.wandb_logger = wandb_logger
         self.fft_n = fft_n
         self.ts_n = ts_n

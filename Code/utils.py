@@ -6,7 +6,10 @@ from scipy.fftpack import fft, fftshift
 from scipy.linalg import expm
 from tqdm import tqdm
 
-import wandb
+try:
+    import wandb
+except ImportError:
+    pass
 
 
 def plot3D_traj(traj_pred, traj_true):
@@ -27,12 +30,12 @@ def compute_traj(trained_model, rossler_map_true, initial_condition, nb_step):
 
 
 class Statistics:
-    def __init__(self, wandb_logger, ts_n=10000, fft_n=1000):
+    def __init__(self, wandb_logger, ts_n=10000, fft_n=1000, n_bins=150):
         self.wandb_logger = wandb_logger
         self.fft_n = fft_n
         self.ts_n = ts_n
         self.axis_names = ["x", "y", "z"]
-        self.n_bins = 20
+        self.n_bins = n_bins
 
     def add_traj(self, traj_true, traj_pred, time_list, prefix=None):
         self.traj_true = traj_true
@@ -47,7 +50,8 @@ class Statistics:
                 {f"{prefix if prefix else ''}{title}": wandb.Image(fig)}
             )
         else:
-            plt.title(title)
+            fig.suptitle(title, fontweight="bold")
+            fig.tight_layout()
             plt.show()
 
     def plot_pdf(self):
@@ -71,7 +75,7 @@ class Statistics:
             ax[idx].plot(self.time_list[:T], self.traj_pred[:T, idx], "-.", label="pred")
             ax[idx].legend()
             ax[idx].set_ylabel(self.axis_names[idx])
-        self.log_plot(ax, fig, "1D Trajectories Start")
+        self.log_plot(ax, fig, f"1D Trajectories Start - indexes {0} to {T}")
 
     def plot1D_traj_end(self):
         T = self.ts_n
@@ -83,7 +87,11 @@ class Statistics:
             ax[idx].plot(self.time_list[-T:], self.traj_pred[-T:, idx], "-.", label="pred")
             ax[idx].legend()
             ax[idx].set_ylabel(self.axis_names[idx])
-        self.log_plot(ax, fig, "1D Trajectories End")
+        self.log_plot(
+            ax,
+            fig,
+            f"1D Trajectories End - indexes {len(self.time_list) - T} to {len(self.time_list)} ",
+        )
 
     def plot_corr(self):
         T = self.ts_n
@@ -151,7 +159,7 @@ class Dynamics:
         self.wandb_logger = wandb_logger
         self.true_model = true_model
         self.trained_model = trained_model
-        self.delta_t = trained_model.delta_t
+        self.delta_t = trained_model.hparams.delta_t
         self.max_it = max_it
         self.max_comp = max_comp
 
@@ -187,14 +195,18 @@ class Dynamics:
         return x
 
     def compute_lyaponov(self):
+        print("Start computation of Lyaponuv exponent on the predicted trajectory...")
         lyap_pred = self.lyapunov_exponent(
             self.traj_pred, self.trained_model.jacobian, mode="discrete"
         )
+        print("Start computation of Lyaponuv exponent on the true trajectory...")
         lyap_true = self.lyapunov_exponent(
             self.traj_true, self.true_model.jacobian, mode="continuous"
         )
         lyap_error = np.abs(lyap_pred - lyap_true)
-        print(f"lyap_true: {lyap_true}," f"lyap_pred: {lyap_pred}," f"lyap_error : {lyap_error}")
+        print(
+            f"lyap_true: {lyap_true},\n" f"lyap_pred: {lyap_pred},\n" f"lyap_error : {lyap_error}"
+        )
         if self.wandb_logger is not None:
             self.wandb_logger.experiment.log(
                 {"lyap_pred": lyap_pred, "lyap_true": lyap_true, "lyap_error": lyap_error}
@@ -219,14 +231,14 @@ class Dynamics:
             )
             / self.delta_t
         )
-
+        print("Start computation of one of the equilibrum point on the predicted trajectory...")
         fix_point_pred = self.newton(f_system, jacobian_system, init_pos)
         fix_point_true = self.true_model.equilibrium()
         fix_point_error = np.abs(fix_point_pred - fix_point_true)
 
         print(
-            f"fix_point_true: {fix_point_true},"
-            f"fix_point_pred: {fix_point_pred},"
+            f"fix_point_true: {fix_point_true},\n"
+            f"fix_point_pred: {fix_point_pred},\n"
             f"fix_point_error : {fix_point_error}"
         )
 

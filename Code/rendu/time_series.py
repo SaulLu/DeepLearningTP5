@@ -121,15 +121,16 @@ class DiscreteModel(pl.LightningModule):
 
         traj = [init_pos]
 
-        with torch.no_grad():
-            if return_numpy:
+        if return_numpy:
+            with torch.no_grad():
                 for _ in tqdm(range(nb_steps - 1), position=0, leave=True):
                     new_coord = self(traj[-1]).detach()
                     traj.append(new_coord)
-            else:
-                for _ in range(nb_steps - 1):
-                    new_coord = self(traj[-1])
-                    traj.append(new_coord)
+        else:
+            for _ in range(nb_steps - 1):
+                new_coord = self(traj[-1])
+                traj.append(new_coord)
+
         traj = torch.stack(traj, axis=1)
         if return_numpy:
             t = np.array([self.hparams.delta_t * step for step in range(nb_steps - 1)])

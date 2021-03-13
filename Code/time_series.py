@@ -11,7 +11,9 @@ TRAJECTORY_DUR = 10000
 class Rossler_model:
     def __init__(self, model_cls, checkpoint_path):
         self.rosler_nn = model_cls.load_from_checkpoint(checkpoint_path=checkpoint_path)
-        self.nb_steps = int(TRAJECTORY_DUR // self.rosler_nn.delta_t)  # int(10000 // self.delta_t)
+        self.nb_steps = int(
+            TRAJECTORY_DUR // self.rosler_nn.hparams.delta_t
+        )  # int(10000 // self.delta_t)
         self.rosler_nn.normalize = True
         self.initial_condition = np.array(INITIAL_CONDITION)
 
