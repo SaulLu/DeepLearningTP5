@@ -10,8 +10,7 @@ from pytorch_lightning.loggers import WandbLogger
 
 from data import RosslerAttractorDataModule
 from model import DiscreteModel
-
-# from pytorch_softdtw_cuda.soft_dtw_cuda import SoftDTW
+from pytorch_softdtw_cuda.soft_dtw_cuda import SoftDTW
 from rossler_map import RosslerMap
 from utils import Dynamics, Statistics, compute_traj
 
@@ -147,9 +146,9 @@ def main(args):
     datamodule.setup()
 
     criterion = nn.L1Loss(reduction="mean")
-    # use_cuda = False if args.gpus is None else True
-    # criterion_2 = SoftDTW(use_cuda=use_cuda, gamma=0.1, normalize=True)
-    criterion_2 = nn.MSELoss(reduction="mean")
+    use_cuda = False if args.gpus is None else True
+    criterion_2 = SoftDTW(use_cuda=use_cuda, gamma=0.1, normalize=True)
+    # criterion_2 = nn.MSELoss(reduction="mean")
 
     checkpoint_path = Path(
         "/content/drive/My Drive/DeepLearningTP5/Code/wandb/run-20210313_133628-1lmijqp9/files/rossler/1lmijqp9/checkpoints/epoch=9-step=19999.ckpt"
@@ -157,8 +156,8 @@ def main(args):
 
     model = DiscreteModel.load_from_checkpoint(checkpoint_path=checkpoint_path)
     model.hparams.criterion_2 = criterion_2
-    model.configure_optimizers()
-    model.hparams.lr = args.lr
+    # model.hparams.lr = args.lr
+    # model.configure_optimizers()
 
     model = DiscreteModel(
         criterion=criterion,
