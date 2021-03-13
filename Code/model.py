@@ -58,9 +58,11 @@ class DiscreteModel(pl.LightningModule):
         w_t2_pred = self(w_t1)
         w_next_pred = self.full_traj(11, w_t1, return_numpy=False)
 
-        mse_w_t2 = self.hparams.criterion(w_t2, w_t2_pred)
-        mse_w_next = self.hparams.criterion_2(w_next, w_next_pred)
-        loss = mse_w_t2 + mse_w_next
+        loss_w_t2 = self.hparams.criterion(w_t2, w_t2_pred)
+        loss_w_next = self.hparams.criterion_2(w_next, w_next_pred)
+        if len(loss_w_next.shape) != 0:
+            loss_w_next = loss_w_next.sum() / loss_w_next.shape[0]
+        loss = loss_w_t2 + loss_w_next
 
         self.log("train_loss", loss, on_step=True, on_epoch=True)
         return loss
@@ -69,12 +71,14 @@ class DiscreteModel(pl.LightningModule):
         w_t1, w_t2, w_next = batch
         w_t2_pred = self(w_t1)
         w_next_pred = self.full_traj(11, w_t1, return_numpy=False)
-        mse_w_t2 = self.hparams.criterion(w_t2, w_t2_pred)
-        mse_w_next = self.hparams.criterion_2(w_next, w_next_pred)
-        loss = mse_w_t2 + mse_w_next
+        loss_w_t2 = self.hparams.criterion(w_t2, w_t2_pred)
+        loss_w_next = self.hparams.criterion_2(w_next, w_next_pred)
+        if len(loss_w_next.shape) != 0:
+            loss_w_next = loss_w_next.sum() / loss_w_next.shape[0]
+        loss = loss_w_t2 + loss_w_next
         self.log("val_loss", loss, on_epoch=True)
-        self.log("val_mse_w_t2", mse_w_t2, on_epoch=True)
-        self.log("val_mse_w_next", mse_w_next, on_epoch=True)
+        self.log("val_mse_w_t2", loss_w_t2, on_epoch=True)
+        self.log("val_mse_w_next", loss_w_next, on_epoch=True)
         return {"w_next": w_next[0], "w_next_pred": w_next_pred[0]}
 
     def validation_epoch_end(self, outputs):
@@ -100,9 +104,11 @@ class DiscreteModel(pl.LightningModule):
         w_t1, w_t2, w_next = batch
         w_t2_pred = self(w_t1)
         w_next_pred = self.full_traj(11, w_t1, return_numpy=False)
-        mse_w_t2 = self.hparams.criterion(w_t2, w_t2_pred)
-        mse_w_next = self.hparams.criterion_2(w_next, w_next_pred)
-        loss = mse_w_t2 + mse_w_next
+        loss_w_t2 = self.hparams.criterion(w_t2, w_t2_pred)
+        loss_w_next = self.hparams.criterion_2(w_next, w_next_pred)
+        if len(loss_w_next.shape) != 0:
+            loss_w_next = loss_w_next.sum() / loss_w_next.shape[0]
+        loss = loss_w_t2 + loss_w_next
         self.log("test_mse", loss)
 
     def full_traj(self, nb_steps, init_pos, return_numpy=True):
