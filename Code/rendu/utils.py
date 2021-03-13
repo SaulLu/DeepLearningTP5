@@ -159,7 +159,7 @@ class Dynamics:
         self.wandb_logger = wandb_logger
         self.true_model = true_model
         self.trained_model = trained_model
-        self.delta_t = trained_model.delta_t
+        self.delta_t = trained_model.hparams.delta_t
         self.max_it = max_it
         self.max_comp = max_comp
 
