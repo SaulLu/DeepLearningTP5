@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from numpy.linalg import norm, qr, solve
-from scipy.fftpack import fft, fftshift
+from scipy.fftpack import fft, fftfreq, fftshift
 from scipy.linalg import expm
 from tqdm import tqdm
 
@@ -62,7 +62,8 @@ class Statistics:
             ax[idx].hist(self.traj_true[:, idx], label="true", alpha=0.8, bins=self.n_bins)
             ax[idx].hist(self.traj_pred[:, idx], label="pred", alpha=0.8, bins=self.n_bins)
             ax[idx].legend()
-            ax[idx].set_ylabel(self.axis_names[idx])
+            ax[idx].set_ylabel(f"Density of {self.axis_names[idx]} (unnormalized)")
+            ax[idx].set_xlabel("Position")
         self.log_plot(ax, fig, "PDF")
 
     def plot1D_traj_start(self):
@@ -75,6 +76,7 @@ class Statistics:
             ax[idx].plot(self.time_list[:T], self.traj_pred[:T, idx], "-.", label="pred")
             ax[idx].legend()
             ax[idx].set_ylabel(self.axis_names[idx])
+            ax[idx].set_xlabel("Time")
         self.log_plot(ax, fig, f"1D Trajectories Start - indexes {0} to {T}")
 
     def plot1D_traj_end(self):
@@ -87,11 +89,26 @@ class Statistics:
             ax[idx].plot(self.time_list[-T:], self.traj_pred[-T:, idx], "-.", label="pred")
             ax[idx].legend()
             ax[idx].set_ylabel(self.axis_names[idx])
+            ax[idx].set_xlabel("Time")
         self.log_plot(
             ax,
             fig,
             f"1D Trajectories End - indexes {len(self.time_list) - T} to {len(self.time_list)} ",
         )
+
+    # def plot_corr(self):
+    #     T = self.ts_n
+    #     fig, ax = plt.subplots(3, 1)
+    #     fig.set_figwidth(15)
+    #     fig.set_figheight(15)
+    #     for idx in range(3):
+    #         corr_true = np.correlate(self.traj_true[:T, idx], self.traj_true[:T, idx], "same")
+    #         corr_pred = np.correlate(self.traj_pred[:T, idx], self.traj_pred[:T, idx], "same")
+    #         ax[idx].plot(self.time_list[:T], corr_true, "--", label="true")
+    #         ax[idx].plot(self.time_list[:T], corr_pred, "-.", label="pred")
+    #         ax[idx].legend()
+    #         ax[idx].set_ylabel(self.axis_names[idx])
+    #     self.log_plot(ax, fig, "Time correlations")
 
     def plot_corr(self):
         T = self.ts_n
@@ -99,23 +116,28 @@ class Statistics:
         fig.set_figwidth(15)
         fig.set_figheight(15)
         for idx in range(3):
-            corr_true = np.correlate(self.traj_true[:T, idx], self.traj_true[:T, idx], "same")
-            corr_pred = np.correlate(self.traj_pred[:T, idx], self.traj_pred[:T, idx], "same")
+            corr_true = self.autocorr(self.traj_true[:T, idx])
+            corr_pred = self.autocorr(self.traj_pred[:T, idx])
             ax[idx].plot(self.time_list[:T], corr_true, "--", label="true")
             ax[idx].plot(self.time_list[:T], corr_pred, "-.", label="pred")
             ax[idx].legend()
             ax[idx].set_ylabel(self.axis_names[idx])
-        self.log_plot(ax, fig, "Time correlations")
+        self.log_plot(ax, fig, "Auto correlations")
+
+    def autocorr(self, x):
+        result = np.correlate(x, x, mode="full")
+        return result[int(result.size / 2) :]
 
     def plot_fft(self):
         fig, ax = plt.subplots(3, 1, figsize=(15, 15))
         for idx in range(3):
-            spec_true = self.compute_spec(self.traj_true[:, idx])
-            spec_pred = self.compute_spec(self.traj_pred[:, idx])
-            ax[idx].plot(spec_true, "--", label="true")
-            ax[idx].plot(spec_pred, "-.", label="pred")
+            spec_true, freq_true = self.compute_spec(self.traj_true[:, idx])
+            spec_pred, freq_pred = self.compute_spec(self.traj_pred[:, idx])
+            ax[idx].plot(freq_true, spec_true, "--", label="true")
+            ax[idx].plot(freq_pred, spec_pred, "-.", label="pred")
             ax[idx].legend()
             ax[idx].set_ylabel(self.axis_names[idx])
+            ax[idx].set_xlabel("Frequency (Hz)")
         self.log_plot(ax, fig, "FFT")
 
     def compute_spec(self, w):
@@ -123,7 +145,10 @@ class Statistics:
         spec = np.abs(fftshift(spec, axes=0))
         spec /= np.max(spec)
         spec_log = 20 * np.log10(spec + np.finfo(np.float32).eps)
-        return spec_log
+
+        freq = fftfreq(self.fft_n, self.time_list[1] - self.time_list[0])
+        freq = fftshift(freq)
+        return spec_log, freq
 
     def plot3D_traj(self):
         fig = plt.figure()
