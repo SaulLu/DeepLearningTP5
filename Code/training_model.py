@@ -3,7 +3,8 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 import numpy as np
-import torch.nn as nn
+
+# import torch.nn as nn
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
@@ -145,13 +146,13 @@ def main(args):
 
     datamodule.setup()
 
-    criterion = nn.L1Loss(reduction="mean")
+    # criterion = nn.L1Loss(reduction="mean")
     use_cuda = False if args.gpus is None else True
     criterion_2 = SoftDTW(use_cuda=use_cuda, gamma=0.1, normalize=True)
     # criterion_2 = nn.MSELoss(reduction="mean")
 
     checkpoint_path = Path(
-        "/content/drive/My Drive/DeepLearningTP5/Code/wandb/run-20210313_200605-22h5s82h/files/rossler/22h5s82h/checkpoints/epoch=15-step=31999.ckpt"
+        "/content/drive/My Drive/DeepLearningTP5/Code/checkpoints/trained_model.ckpt"
     )
 
     model = DiscreteModel.load_from_checkpoint(checkpoint_path=checkpoint_path)
@@ -159,15 +160,15 @@ def main(args):
     # model.hparams.lr = args.lr
     # model.configure_optimizers()
 
-    model = DiscreteModel(
-        criterion=criterion,
-        criterion_2=criterion_2,
-        lr=args.lr,
-        delta_t=args.delta_t,
-        mean=datamodule.dataset_train.mean,
-        std=datamodule.dataset_train.std,
-        hidden_size=15,
-    )
+    # model = DiscreteModel(
+    #     criterion=criterion,
+    #     criterion_2=criterion_2,
+    #     lr=args.lr,
+    #     delta_t=args.delta_t,
+    #     mean=datamodule.dataset_train.mean,
+    #     std=datamodule.dataset_train.std,
+    #     hidden_size=15,
+    # )
 
     checkpoint_callback = ModelCheckpoint(
         save_top_k=1,
