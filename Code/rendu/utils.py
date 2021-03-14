@@ -122,6 +122,7 @@ class Statistics:
             ax[idx].plot(self.time_list[:T], corr_pred, "-.", label="pred")
             ax[idx].legend()
             ax[idx].set_ylabel(self.axis_names[idx])
+            ax[idx].set_xlabel("Lag")
         self.log_plot(ax, fig, "Auto correlations")
 
     def autocorr(self, x):
