@@ -151,7 +151,7 @@ def main(args):
     # criterion_2 = nn.MSELoss(reduction="mean")
 
     checkpoint_path = Path(
-        "/content/drive/My Drive/DeepLearningTP5/Code/wandb/run-20210313_200605-22h5s82h/files/rossler/22h5s82h/checkpoints/epoch=0-step=1999.ckpt"
+        "/content/drive/My Drive/DeepLearningTP5/Code/wandb/run-20210313_200605-22h5s82h/files/rossler/22h5s82h/checkpoints/epoch=15-step=31999.ckpt"
     )
 
     model = DiscreteModel.load_from_checkpoint(checkpoint_path=checkpoint_path)
