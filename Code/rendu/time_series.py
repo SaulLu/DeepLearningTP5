@@ -5,13 +5,11 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
+from scipy.interpolate import interp1d
 from tqdm import tqdm
 
 from utils import plot3D_traj
 
-# from scipy.interpolate import interp1d
-
-INITIAL_CONDITION = [-5.75, -1.6, 0.02]
 TRAJECTORY_DUR = 10000
 
 
@@ -122,19 +120,19 @@ class DiscreteModel(pl.LightningModule):
 
         traj = [init_pos]
 
-        with torch.no_grad():
-            if return_numpy:
+        if return_numpy:
+            with torch.no_grad():
                 for _ in tqdm(range(nb_steps - 1), position=0, leave=True):
                     new_coord = self(traj[-1]).detach()
                     traj.append(new_coord)
-            else:
-                for _ in range(nb_steps - 1):
-                    new_coord = self(traj[-1])
-                    traj.append(new_coord)
+        else:
+            for _ in range(nb_steps - 1):
+                new_coord = self(traj[-1])
+                traj.append(new_coord)
 
         traj = torch.stack(traj, axis=1)
         if return_numpy:
-            t = np.array([self.delta_t * step for step in range(nb_steps - 1)])
+            t = np.linspace(0, (nb_steps - 1) * self.delta_t, nb_steps)
             traj = traj.squeeze()
             traj = traj.numpy()
             return traj, t
@@ -148,23 +146,26 @@ class DiscreteModel(pl.LightningModule):
 
 
 class Rossler_model:
-    def __init__(self, model_cls, checkpoint_path):
+    def __init__(self, model_cls, checkpoint_path, args):
         trained_model = DiscreteModel.load_from_checkpoint(checkpoint_path=checkpoint_path)
 
         trained_model.normalize = False
         trained_model.eval()
 
         self.rosler_nn = trained_model
-        self.nb_steps = int(
-            TRAJECTORY_DUR // self.rosler_nn.hparams.delta_t
-        )  # int(10000 // self.delta_t)
-        self.initial_condition = np.array(INITIAL_CONDITION)
+        self.nb_steps = int(TRAJECTORY_DUR // self.rosler_nn.hparams.delta_t) + 1 + 1
+        self.initial_condition = np.array(args.init)
 
-    def full_traj(self, initial_condition=np.array(INITIAL_CONDITION), y_only=True):
-        traj, t = self.rosler_nn.full_traj(self.nb_steps, initial_condition)
-        if y_only:
-            traj = traj[:, 1]
-        # TODO: warning interpolate trajectories is not done yet
+    def full_traj(self):
+        traj, t = self.rosler_nn.full_traj(self.nb_steps, self.initial_condition)
+
+        traj = traj[:, 1]
+
+        t_new = np.linspace(0, TRAJECTORY_DUR, int(TRAJECTORY_DUR // 1e-2) + 1)
+
+        traj_function = interp1d(t, traj, kind="linear")
+        traj = traj_function(t_new)
+
         return traj
 
     def save_traj(self, y):
@@ -174,7 +175,12 @@ class Rossler_model:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--init", nargs="+", type=float, default=[-5.75, -1.6, 0.02])
-    value = parser.parse_args()
-    ROSSLER = Rossler_model(model_cls=DiscreteModel, checkpoint_path=Path("trained_model.ckpt"))
+    args = parser.parse_args()
+
+    ROSSLER = Rossler_model(
+        model_cls=DiscreteModel, checkpoint_path=Path("trained_model.ckpt"), args=args
+    )
+
     y = ROSSLER.full_traj()
+
     ROSSLER.save_traj(y)
