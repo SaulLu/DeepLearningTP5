@@ -59,12 +59,22 @@ class Statistics:
         fig.set_figwidth(15)
         fig.set_figheight(5)
         for idx in range(3):
-            ax[idx].hist(self.traj_true[:, idx], label="true", alpha=0.8, bins=self.n_bins)
-            ax[idx].hist(self.traj_pred[:, idx], label="pred", alpha=0.8, bins=self.n_bins)
+            hist_1, _ = np.histogram(self.traj_true[:, idx], bins=self.n_bins)
+            hist_2, _ = np.histogram(self.traj_pred[:, idx], bins=self.n_bins)
+            intersection = self.return_intersection(hist_1, hist_2)
+
+            ax[idx].hist(self.traj_true[:, idx], label="true", alpha=0.6, bins=self.n_bins)
+            ax[idx].hist(self.traj_pred[:, idx], label="pred", alpha=0.6, bins=self.n_bins)
             ax[idx].legend()
             ax[idx].set_ylabel(f"Density of {self.axis_names[idx]} (unnormalized)")
             ax[idx].set_xlabel("Position")
+            ax[idx].set_title(f"{intersection * 100 :.2f}% intersection")
         self.log_plot(ax, fig, "PDF")
+
+    def return_intersection(self, hist_1, hist_2):
+        minima = np.minimum(hist_1, hist_2)
+        intersection = np.true_divide(np.sum(minima), np.sum(hist_2))
+        return intersection
 
     def plot1D_traj_start(self):
         T = self.ts_n
