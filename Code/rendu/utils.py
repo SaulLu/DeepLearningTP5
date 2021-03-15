@@ -106,20 +106,6 @@ class Statistics:
             f"1D Trajectories End - indexes {len(self.time_list) - T} to {len(self.time_list)} ",
         )
 
-    # def plot_corr(self):
-    #     T = self.ts_n
-    #     fig, ax = plt.subplots(3, 1)
-    #     fig.set_figwidth(15)
-    #     fig.set_figheight(15)
-    #     for idx in range(3):
-    #         corr_true = np.correlate(self.traj_true[:T, idx], self.traj_true[:T, idx], "same")
-    #         corr_pred = np.correlate(self.traj_pred[:T, idx], self.traj_pred[:T, idx], "same")
-    #         ax[idx].plot(self.time_list[:T], corr_true, "--", label="true")
-    #         ax[idx].plot(self.time_list[:T], corr_pred, "-.", label="pred")
-    #         ax[idx].legend()
-    #         ax[idx].set_ylabel(self.axis_names[idx])
-    #     self.log_plot(ax, fig, "Time correlations")
-
     def plot_corr(self):
         T = self.ts_n
         fig, ax = plt.subplots(3, 1)
