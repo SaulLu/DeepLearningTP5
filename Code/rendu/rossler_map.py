@@ -23,8 +23,6 @@ class RosslerMap:
     def jacobian(_, v):
         x, z = v[0], v[2]
         res = np.array([[0, -1, -1], [1, _.a, 0], [z, 0, x - _.c]])
-        # if (_.mode =="discrete"):
-        #    res = np.exp(_.delta_t * res) + _.delta_t * res
         return res
 
     def full_traj(_, nb_steps, init_pos):
